@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:debezium.io)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

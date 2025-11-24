@@ -1,0 +1,57 @@
+# Document Versioning
+
+## Current Versions
+
+| Document | Version | Last Updated | Status |
+|----------|---------|--------------|--------|
+| **GitOps.md** | 1.0.0 | 2025-11-24 | Original specification |
+| **Requirements.md** | 1.1.0 | 2025-11-24 | Added performance & security |
+| **Plan.md** | 1.1.0 | 2025-11-24 | Added cost estimation |
+| **Task.md** | 1.1.0 | 2025-11-24 | Updated task counts |
+| **Guidelines.md** | 1.0.0 | 2025-11-24 | Agent prompts ready |
+| **CHANGELOG.md** | 1.0.0 | 2025-11-24 | Project tracking |
+| **Setup.md** | 1.1.0 | 2025-11-24 | Added rollback procedures |
+| **tasks.json** | 1.1.0 | 2025-11-24 | Expanded phase 3 |
+| **Risks.md** | 1.0.0 | 2025-11-24 | New risk assessment |
+| **QuickStart.md** | 1.0.0 | 2025-11-24 | New quick reference |
+| **CheatSheet.md** | 1.0.0 | 2025-11-24 | New development guide |
+
+## Versioning Scheme
+
+- **MAJOR.MINOR.PATCH**
+- **MAJOR**: Breaking changes, major rewrites
+- **MINOR**: New features, significant additions
+- **PATCH**: Bug fixes, clarifications, minor updates
+
+## Compatibility Matrix
+
+| Document Version | Go Version | Kubernetes | Azure Services |
+|------------------|------------|------------|----------------|
+| 1.0.x | 1.21+ | 1.28+ | ACR, AKS, Key Vault |
+| 1.1.x | 1.21+ | 1.28+ | ACR, AKS, Key Vault |
+
+## Update Process
+
+1. **Planning**: Review proposed changes for version impact
+2. **Implementation**: Make changes following existing patterns
+3. **Validation**: Run `./scripts/validate-docs.sh`
+4. **Version Update**: Update VERSION file and document headers
+5. **Changelog**: Document changes in CHANGELOG.md
+6. **Commit**: Use semantic commit message
+
+## Document Dependencies
+
+```
+Requirements.md (1.1.0)
+├── Plan.md (1.1.0)
+├── Task.md (1.1.0)
+├── Guidelines.md (1.0.0)
+├── Setup.md (1.1.0)
+└── tasks.json (1.1.0)
+
+Risks.md (1.0.0) - Independent
+
+QuickStart.md (1.0.0)
+└── CheatSheet.md (1.0.0)
+    └── All technical docs
+```

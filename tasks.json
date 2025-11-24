@@ -1,0 +1,3687 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "metadata": {
+    "project": "E-Commerce Microservices Platform",
+    "version": "2.0.0",
+    "totalTasks": 209,
+    "lastUpdated": "2024-XX-XX",
+    "documents": {
+      "spec": "GitOps.md",
+      "requirements": "Requirements.md",
+      "plan": "Plan.md",
+      "tasks": "Task.md",
+      "guidelines": "Guidelines.md",
+      "changelog": "CHANGELOG.md",
+      "setup": "Setup.md"
+    }
+  },
+  "agentRoles": {
+    "devops-engineer": {
+      "description": "Infrastructure, CI/CD, Kubernetes, Terraform, Docker",
+      "skills": ["terraform", "kubernetes", "helm", "docker", "github-actions", "argocd", "istio"]
+    },
+    "backend-developer": {
+      "description": "Go development, domain logic, application layer",
+      "skills": ["go", "ddd", "clean-architecture", "testing", "mongodb", "kafka"]
+    },
+    "platform-engineer": {
+      "description": "Shared libraries, infrastructure code, messaging",
+      "skills": ["go", "kafka", "mongodb", "debezium", "outbox-pattern"]
+    },
+    "sre-engineer": {
+      "description": "Monitoring, observability, alerting",
+      "skills": ["prometheus", "grafana", "alertmanager", "logging"]
+    },
+    "project-lead": {
+      "description": "Repository setup, documentation, coordination",
+      "skills": ["git", "documentation", "planning"]
+    },
+    "quality-agent": {
+      "description": "Quality assurance, code review, testing, compliance",
+      "skills": ["testing", "security", "code-review", "linting", "compliance", "performance"]
+    }
+  },
+  "taskSchema": {
+    "id": "string - Task identifier (X.X.X format)",
+    "description": "string - What the task accomplishes",
+    "type": "sequential | concurrent",
+    "dependencies": "string[] - Task IDs that must complete first",
+    "status": "pending | in_progress | completed | failed | blocked",
+    "recommendedAgentRole": "string - Best agent type for this task",
+    "guidelinesRef": "string | null - Path to Guidelines.md prompt",
+    "requirementsRef": "string | null - Path to Requirements.md section",
+    "definitionOfDone": "string[] - Checklist items to verify",
+    "acceptanceCriteria": "string[] - Success conditions",
+    "expectedArtifacts": "string[] - Files/directories that should exist after",
+    "verificationCommand": "string | null - Shell command to verify success",
+    "onFailure": "object | null - Recovery strategy if task fails",
+    "stateTracking": {
+      "startedAt": "ISO timestamp | null",
+      "completedAt": "ISO timestamp | null",
+      "agentAssigned": "string | null",
+      "attemptCount": "number",
+      "lastError": "string | null"
+    }
+  },
+  "phases": [
+    {
+      "id": "phase-1",
+      "name": "Foundation",
+      "description": "Project structure, shared libraries, development environment, GitOps repository",
+      "prerequisite": null,
+      "totalTasks": 25,
+      "status": "pending",
+      "sections": [
+        {
+          "id": "1.0",
+          "name": "GitOps Repository Setup",
+          "blocking": true,
+          "tasks": [
+            {
+              "id": "1.0.1",
+              "description": "Initialize Git repository in GitOps directory",
+              "type": "sequential",
+              "dependencies": [],
+              "status": "pending",
+              "recommendedAgentRole": "project-lead",
+              "guidelinesRef": null,
+              "requirementsRef": null,
+              "definitionOfDone": [
+                "Git repository initialized with `git init`",
+                ".git directory exists",
+                "Repository is valid"
+              ],
+              "acceptanceCriteria": [
+                "`git status` returns valid repository status"
+              ],
+              "expectedArtifacts": [".git"],
+              "verificationCommand": "git status",
+              "onFailure": {
+                "strategy": "retry",
+                "maxRetries": 3,
+                "recoveryCommand": "rm -rf .git && git init"
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "1.0.2",
+              "description": "Create CHANGELOG.md with initial structure",
+              "type": "sequential",
+              "dependencies": ["1.0.1"],
+              "status": "pending",
+              "recommendedAgentRole": "project-lead",
+              "guidelinesRef": null,
+              "requirementsRef": null,
+              "definitionOfDone": [
+                "CHANGELOG.md created",
+                "Keep a Changelog format used",
+                "Project state summary table present"
+              ],
+              "acceptanceCriteria": [
+                "File follows Keep a Changelog 1.1.0 format"
+              ],
+              "expectedArtifacts": ["CHANGELOG.md"],
+              "verificationCommand": "test -f CHANGELOG.md && head -1 CHANGELOG.md | grep -q 'Changelog'",
+              "onFailure": {
+                "strategy": "regenerate",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "1.0.3",
+              "description": "Create .gitignore file",
+              "type": "sequential",
+              "dependencies": ["1.0.1"],
+              "status": "pending",
+              "recommendedAgentRole": "project-lead",
+              "guidelinesRef": null,
+              "requirementsRef": null,
+              "definitionOfDone": [
+                ".gitignore created with Go patterns",
+                "IDE files excluded",
+                "Secrets and env files excluded",
+                "Build artifacts excluded"
+              ],
+              "acceptanceCriteria": [
+                "No sensitive files would be tracked"
+              ],
+              "expectedArtifacts": [".gitignore"],
+              "verificationCommand": "test -f .gitignore && grep -q '*.env' .gitignore",
+              "onFailure": {
+                "strategy": "regenerate",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "1.0.4",
+              "description": "Initial commit with planning documents",
+              "type": "sequential",
+              "dependencies": ["1.0.2", "1.0.3"],
+              "status": "pending",
+              "recommendedAgentRole": "project-lead",
+              "guidelinesRef": null,
+              "requirementsRef": null,
+              "definitionOfDone": [
+                "All planning docs staged",
+                "Commit message follows [TASK-X.X.X] convention",
+                "Commit created successfully"
+              ],
+              "acceptanceCriteria": [
+                "Commit exists in git log"
+              ],
+              "expectedArtifacts": [],
+              "verificationCommand": "git log --oneline -1 | grep -q 'TASK-1.0.4'",
+              "onFailure": {
+                "strategy": "retry",
+                "maxRetries": 2,
+                "recoveryCommand": "git reset HEAD~1"
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "1.0.5",
+              "description": "Create develop branch",
+              "type": "sequential",
+              "dependencies": ["1.0.4"],
+              "status": "pending",
+              "recommendedAgentRole": "project-lead",
+              "guidelinesRef": null,
+              "requirementsRef": null,
+              "definitionOfDone": [
+                "develop branch created from main",
+                "Branch exists locally"
+              ],
+              "acceptanceCriteria": [
+                "`git branch` shows develop"
+              ],
+              "expectedArtifacts": [],
+              "verificationCommand": "git branch | grep -q 'develop'",
+              "onFailure": {
+                "strategy": "retry",
+                "maxRetries": 2,
+                "recoveryCommand": "git branch -D develop 2>/dev/null; git checkout -b develop"
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "1.0.6",
+              "description": "Document branch protection rules in Setup.md",
+              "type": "sequential",
+              "dependencies": ["1.0.5"],
+              "status": "pending",
+              "recommendedAgentRole": "project-lead",
+              "guidelinesRef": null,
+              "requirementsRef": null,
+              "definitionOfDone": [
+                "Branch protection rules documented",
+                "PR requirements specified",
+                "CI requirements defined"
+              ],
+              "acceptanceCriteria": [
+                "Documentation exists in Setup.md"
+              ],
+              "expectedArtifacts": ["Setup.md"],
+              "verificationCommand": "grep -q 'Branch Protection' Setup.md",
+              "onFailure": {
+                "strategy": "regenerate",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            }
+          ]
+        },
+        {
+          "id": "1.1",
+          "name": "Project Initialization",
+          "blocking": true,
+          "tasks": [
+            {
+              "id": "1.1.1",
+              "description": "Create ecommerce-platform directory structure",
+              "type": "sequential",
+              "dependencies": ["1.0.6"],
+              "status": "pending",
+              "recommendedAgentRole": "project-lead",
+              "guidelinesRef": "Plan.md#1.1-Repository-Structure",
+              "requirementsRef": null,
+              "definitionOfDone": [
+                "ecommerce-platform/ directory created",
+                "services/, shared/, infrastructure/ subdirs created"
+              ],
+              "acceptanceCriteria": [
+                "Structure matches Plan.md repository layout"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform",
+                "ecommerce-platform/services",
+                "ecommerce-platform/shared",
+                "ecommerce-platform/infrastructure"
+              ],
+              "verificationCommand": "test -d ecommerce-platform/services && test -d ecommerce-platform/shared && test -d ecommerce-platform/infrastructure",
+              "onFailure": {
+                "strategy": "cleanup-and-retry",
+                "recoveryCommand": "rm -rf ecommerce-platform"
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "1.1.2",
+              "description": "Initialize full root directory structure",
+              "type": "sequential",
+              "dependencies": ["1.1.1"],
+              "status": "pending",
+              "recommendedAgentRole": "project-lead",
+              "guidelinesRef": "Plan.md#1.1-Repository-Structure",
+              "requirementsRef": null,
+              "definitionOfDone": [
+                "All subdirectories from Plan.md created",
+                ".github/workflows/ created",
+                "argocd/, docs/ created"
+              ],
+              "acceptanceCriteria": [
+                "Full tree structure matches Plan.md"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/.github/workflows",
+                "ecommerce-platform/argocd",
+                "ecommerce-platform/docs"
+              ],
+              "verificationCommand": "test -d ecommerce-platform/.github/workflows && test -d ecommerce-platform/argocd",
+              "onFailure": {
+                "strategy": "retry",
+                "maxRetries": 2,
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "1.1.3",
+              "description": "Create .editorconfig",
+              "type": "sequential",
+              "dependencies": ["1.1.2"],
+              "status": "pending",
+              "recommendedAgentRole": "project-lead",
+              "guidelinesRef": "Guidelines.md#Coding-Standards",
+              "requirementsRef": null,
+              "definitionOfDone": [
+                ".editorconfig created in ecommerce-platform/",
+                "Go-specific settings included (tabs, 120 line length)",
+                "Consistent settings for all file types"
+              ],
+              "acceptanceCriteria": [
+                "Editor respects config settings"
+              ],
+              "expectedArtifacts": ["ecommerce-platform/.editorconfig"],
+              "verificationCommand": "test -f ecommerce-platform/.editorconfig && grep -q 'indent_style' ecommerce-platform/.editorconfig",
+              "onFailure": {
+                "strategy": "regenerate",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            }
+          ]
+        },
+        {
+          "id": "1.2",
+          "name": "Shared Libraries",
+          "blocking": true,
+          "tasks": [
+            {
+              "id": "1.2.1",
+              "description": "Initialize shared/pkg Go module",
+              "type": "sequential",
+              "dependencies": ["1.1.3"],
+              "status": "pending",
+              "recommendedAgentRole": "platform-engineer",
+              "guidelinesRef": null,
+              "requirementsRef": "Requirements.md#3.2-Technology-Stack",
+              "definitionOfDone": [
+                "go.mod created in shared/",
+                "Module path: github.com/org/ecommerce-platform/shared",
+                "Go version 1.21+ specified"
+              ],
+              "acceptanceCriteria": [
+                "`go mod tidy` succeeds without errors"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/shared/go.mod"
+              ],
+              "verificationCommand": "cd ecommerce-platform/shared && go mod tidy && echo 'success'",
+              "onFailure": {
+                "strategy": "cleanup-and-retry",
+                "recoveryCommand": "rm -f ecommerce-platform/shared/go.mod ecommerce-platform/shared/go.sum"
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "1.2.2",
+              "description": "Create events package (base interfaces)",
+              "type": "concurrent",
+              "dependencies": ["1.2.1"],
+              "status": "pending",
+              "recommendedAgentRole": "platform-engineer",
+              "guidelinesRef": "Guidelines.md#Prompt-1.2.2",
+              "requirementsRef": "Requirements.md#4-Domain-Events",
+              "definitionOfDone": [
+                "DomainEvent interface defined",
+                "IntegrationEvent interface defined",
+                "BaseEvent struct implemented",
+                "Event registry for deserialization created",
+                "Unit tests written with 80%+ coverage"
+              ],
+              "acceptanceCriteria": [
+                "Interfaces clearly defined with required methods",
+                "Events are JSON serializable",
+                "Registry can deserialize events by type"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/shared/pkg/events/event.go",
+                "ecommerce-platform/shared/pkg/events/registry.go",
+                "ecommerce-platform/shared/pkg/events/event_test.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/shared && go test ./pkg/events/... -cover | grep -E 'coverage|ok'",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "1.2.3",
+              "description": "Create logging package",
+              "type": "concurrent",
+              "dependencies": ["1.2.1"],
+              "status": "pending",
+              "recommendedAgentRole": "platform-engineer",
+              "guidelinesRef": "Guidelines.md#Prompt-1.2.3",
+              "requirementsRef": null,
+              "definitionOfDone": [
+                "Logger interface defined",
+                "Zap implementation created",
+                "HTTP middleware for request logging",
+                "Correlation ID support via context",
+                "Unit tests with 80%+ coverage"
+              ],
+              "acceptanceCriteria": [
+                "Logger interface is swappable",
+                "JSON logging in production mode",
+                "Console logging in development",
+                "Correlation IDs propagate correctly"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/shared/pkg/logging/logger.go",
+                "ecommerce-platform/shared/pkg/logging/zap.go",
+                "ecommerce-platform/shared/pkg/logging/middleware.go",
+                "ecommerce-platform/shared/pkg/logging/logger_test.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/shared && go test ./pkg/logging/... -cover | grep -E 'coverage|ok'",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "1.2.4",
+              "description": "Create mongodb package",
+              "type": "concurrent",
+              "dependencies": ["1.2.1"],
+              "status": "pending",
+              "recommendedAgentRole": "platform-engineer",
+              "guidelinesRef": "Guidelines.md#Prompt-1.2.4",
+              "requirementsRef": "Requirements.md#3.2-Technology-Stack",
+              "definitionOfDone": [
+                "Client wrapper with config struct",
+                "NewClient constructor with connection",
+                "Transaction wrapper function",
+                "Health check function",
+                "Unit tests with mocks"
+              ],
+              "acceptanceCriteria": [
+                "Client connects via config",
+                "Transactions work correctly",
+                "Errors properly categorized (NotFound, DuplicateKey)"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/shared/pkg/mongodb/client.go",
+                "ecommerce-platform/shared/pkg/mongodb/repository.go",
+                "ecommerce-platform/shared/pkg/mongodb/errors.go",
+                "ecommerce-platform/shared/pkg/mongodb/client_test.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/shared && go test ./pkg/mongodb/... -cover | grep -E 'coverage|ok'",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "1.2.5",
+              "description": "Create kafka package (segmentio/kafka-go)",
+              "type": "concurrent",
+              "dependencies": ["1.2.1"],
+              "status": "pending",
+              "recommendedAgentRole": "platform-engineer",
+              "guidelinesRef": "Guidelines.md#Prompt-1.2.5",
+              "requirementsRef": "Requirements.md#3.2-Technology-Stack",
+              "definitionOfDone": [
+                "Producer with Publish method",
+                "Consumer with Subscribe method",
+                "Serialization/deserialization helpers",
+                "Consumer group support",
+                "Graceful shutdown",
+                "Unit tests with 80%+ coverage"
+              ],
+              "acceptanceCriteria": [
+                "Uses segmentio/kafka-go library",
+                "Consumer groups work correctly",
+                "Graceful shutdown implemented"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/shared/pkg/kafka/producer.go",
+                "ecommerce-platform/shared/pkg/kafka/consumer.go",
+                "ecommerce-platform/shared/pkg/kafka/serialization.go",
+                "ecommerce-platform/shared/pkg/kafka/kafka_test.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/shared && go test ./pkg/kafka/... -cover | grep -E 'coverage|ok'",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "1.2.6",
+              "description": "Create outbox package",
+              "type": "sequential",
+              "dependencies": ["1.2.2", "1.2.4"],
+              "status": "pending",
+              "recommendedAgentRole": "platform-engineer",
+              "guidelinesRef": "Guidelines.md#Prompt-1.2.6",
+              "requirementsRef": "Requirements.md#3.1-Outbox-Pattern",
+              "definitionOfDone": [
+                "OutboxEntry model with required fields",
+                "Repository interface defined",
+                "Polling publisher for fallback",
+                "Cleanup of old entries",
+                "Unit tests with 80%+ coverage"
+              ],
+              "acceptanceCriteria": [
+                "Entries saved atomically with aggregate",
+                "Debezium can capture changes",
+                "Polling fallback works"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/shared/pkg/outbox/entry.go",
+                "ecommerce-platform/shared/pkg/outbox/repository.go",
+                "ecommerce-platform/shared/pkg/outbox/publisher.go",
+                "ecommerce-platform/shared/pkg/outbox/outbox_test.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/shared && go test ./pkg/outbox/... -cover | grep -E 'coverage|ok'",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "1.2.7",
+              "description": "Create shared value objects (OrderID, Money, CustomerID)",
+              "type": "sequential",
+              "dependencies": ["1.2.1"],
+              "status": "pending",
+              "recommendedAgentRole": "platform-engineer",
+              "guidelinesRef": "Guidelines.md#Prompt-1.2.7",
+              "requirementsRef": "Requirements.md#3.4-Service-Architecture",
+              "definitionOfDone": [
+                "OrderID value object with validation",
+                "Money value object with currency",
+                "CustomerID value object",
+                "CorrelationID for tracing",
+                "JSON and BSON serialization",
+                "Unit tests with 80%+ coverage"
+              ],
+              "acceptanceCriteria": [
+                "Value objects are immutable",
+                "Validation on construction",
+                "Serialization works correctly"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/shared/pkg/domain/orderid.go",
+                "ecommerce-platform/shared/pkg/domain/money.go",
+                "ecommerce-platform/shared/pkg/domain/customerid.go",
+                "ecommerce-platform/shared/pkg/domain/correlationid.go",
+                "ecommerce-platform/shared/pkg/domain/domain_test.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/shared && go test ./pkg/domain/... -cover | grep -E 'coverage|ok'",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "1.2.8",
+              "description": "Write comprehensive unit tests for all shared packages",
+              "type": "sequential",
+              "dependencies": ["1.2.2", "1.2.3", "1.2.4", "1.2.5", "1.2.6", "1.2.7"],
+              "status": "pending",
+              "recommendedAgentRole": "platform-engineer",
+              "guidelinesRef": "Guidelines.md#Testing-Standards",
+              "requirementsRef": "Requirements.md#11-Acceptance-Criteria",
+              "definitionOfDone": [
+                "All packages have comprehensive tests",
+                "Table-driven tests used",
+                "Edge cases covered",
+                "Coverage report generated"
+              ],
+              "acceptanceCriteria": [
+                "80%+ coverage per package",
+                "All tests pass",
+                "No race conditions"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/shared/coverage.out"
+              ],
+              "verificationCommand": "cd ecommerce-platform/shared && go test ./... -race -coverprofile=coverage.out && go tool cover -func=coverage.out | tail -1",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            }
+          ]
+        },
+        {
+          "id": "1.3",
+          "name": "Service Scaffolding",
+          "blocking": false,
+          "tasks": [
+            {
+              "id": "1.3.1",
+              "description": "Scaffold Order service directory structure",
+              "type": "concurrent",
+              "dependencies": ["1.2.1"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Plan.md#1.1-Repository-Structure",
+              "requirementsRef": null,
+              "definitionOfDone": [
+                "cmd/main.go placeholder created",
+                "internal/domain/ subdirs: aggregate, entity, valueobject, event, repository",
+                "internal/application/ subdirs: command, query, handler, saga",
+                "internal/infrastructure/ subdirs: persistence, messaging, outbox",
+                "internal/api/ subdirs: http",
+                "Dockerfile placeholder"
+              ],
+              "acceptanceCriteria": [
+                "Matches clean architecture layout in Plan.md"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/order/cmd",
+                "ecommerce-platform/services/order/internal/domain/aggregate",
+                "ecommerce-platform/services/order/internal/application/handler",
+                "ecommerce-platform/services/order/internal/infrastructure/persistence",
+                "ecommerce-platform/services/order/internal/api/http",
+                "ecommerce-platform/services/order/Dockerfile"
+              ],
+              "verificationCommand": "test -d ecommerce-platform/services/order/internal/domain/aggregate && test -d ecommerce-platform/services/order/internal/application/handler",
+              "onFailure": {
+                "strategy": "cleanup-and-retry",
+                "recoveryCommand": "rm -rf ecommerce-platform/services/order"
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "1.3.2",
+              "description": "Scaffold Payment service directory structure",
+              "type": "concurrent",
+              "dependencies": ["1.2.1"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Plan.md#1.1-Repository-Structure",
+              "requirementsRef": null,
+              "definitionOfDone": [
+                "Same structure as Order service"
+              ],
+              "acceptanceCriteria": [
+                "Matches clean architecture layout"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/payment/cmd",
+                "ecommerce-platform/services/payment/internal/domain/aggregate",
+                "ecommerce-platform/services/payment/internal/application/handler",
+                "ecommerce-platform/services/payment/Dockerfile"
+              ],
+              "verificationCommand": "test -d ecommerce-platform/services/payment/internal/domain/aggregate",
+              "onFailure": {
+                "strategy": "cleanup-and-retry",
+                "recoveryCommand": "rm -rf ecommerce-platform/services/payment"
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "1.3.3",
+              "description": "Scaffold Fulfillment service directory structure",
+              "type": "concurrent",
+              "dependencies": ["1.2.1"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Plan.md#1.1-Repository-Structure",
+              "requirementsRef": null,
+              "definitionOfDone": [
+                "Same structure as Order service"
+              ],
+              "acceptanceCriteria": [
+                "Matches clean architecture layout"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/fulfillment/cmd",
+                "ecommerce-platform/services/fulfillment/internal/domain/aggregate",
+                "ecommerce-platform/services/fulfillment/internal/application/handler",
+                "ecommerce-platform/services/fulfillment/Dockerfile"
+              ],
+              "verificationCommand": "test -d ecommerce-platform/services/fulfillment/internal/domain/aggregate",
+              "onFailure": {
+                "strategy": "cleanup-and-retry",
+                "recoveryCommand": "rm -rf ecommerce-platform/services/fulfillment"
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "1.3.4",
+              "description": "Initialize Go modules for all three services",
+              "type": "sequential",
+              "dependencies": ["1.3.1", "1.3.2", "1.3.3"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": null,
+              "requirementsRef": null,
+              "definitionOfDone": [
+                "go.mod in each service directory",
+                "Shared package referenced via replace directive",
+                "Go version 1.21+ consistent"
+              ],
+              "acceptanceCriteria": [
+                "`go mod tidy` succeeds for all services"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/order/go.mod",
+                "ecommerce-platform/services/payment/go.mod",
+                "ecommerce-platform/services/fulfillment/go.mod"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/order && go mod tidy && cd ../payment && go mod tidy && cd ../fulfillment && go mod tidy",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            }
+          ]
+        },
+        {
+          "id": "1.4",
+          "name": "Development Environment",
+          "blocking": false,
+          "tasks": [
+            {
+              "id": "1.4.1",
+              "description": "Create Docker Compose for local development",
+              "type": "concurrent",
+              "dependencies": ["1.1.3"],
+              "status": "pending",
+              "recommendedAgentRole": "devops-engineer",
+              "guidelinesRef": "Guidelines.md#Prompt-1.4.1",
+              "requirementsRef": "Requirements.md#3.2-Technology-Stack",
+              "definitionOfDone": [
+                "docker-compose.yml created",
+                "MongoDB with replica set configured",
+                "Kafka + Zookeeper configured",
+                "Kafka UI for debugging",
+                "Debezium Connect configured",
+                "Health checks for all services",
+                "Named volumes for persistence"
+              ],
+              "acceptanceCriteria": [
+                "`docker-compose up` starts all services",
+                "Services can communicate",
+                "Data persists between restarts"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/docker-compose.yml"
+              ],
+              "verificationCommand": "cd ecommerce-platform && docker-compose config",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": "docker-compose down -v"
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "1.4.2",
+              "description": "Configure golangci-lint",
+              "type": "concurrent",
+              "dependencies": ["1.1.3"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-1.4.2",
+              "requirementsRef": null,
+              "definitionOfDone": [
+                ".golangci.yml created with linters enabled",
+                "errcheck, govet, staticcheck, gosec configured",
+                "Exclusions for generated code",
+                "Timeout configured for CI"
+              ],
+              "acceptanceCriteria": [
+                "Lint passes on initial codebase",
+                "Execution < 30s"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/.golangci.yml"
+              ],
+              "verificationCommand": "cd ecommerce-platform && golangci-lint run --timeout 30s ./... || echo 'No Go files yet'",
+              "onFailure": {
+                "strategy": "regenerate",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "1.4.3",
+              "description": "Setup pre-commit hooks",
+              "type": "concurrent",
+              "dependencies": ["1.1.3"],
+              "status": "pending",
+              "recommendedAgentRole": "devops-engineer",
+              "guidelinesRef": "Guidelines.md#Prompt-1.4.3",
+              "requirementsRef": null,
+              "definitionOfDone": [
+                ".pre-commit-config.yaml created",
+                "go fmt, vet, lint hooks configured",
+                "gitleaks for secret detection",
+                "conventional-commits hook",
+                "Backup script in scripts/"
+              ],
+              "acceptanceCriteria": [
+                "`pre-commit install` works",
+                "Commits blocked on failure"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/.pre-commit-config.yaml",
+                "ecommerce-platform/scripts/pre-commit.sh"
+              ],
+              "verificationCommand": "test -f ecommerce-platform/.pre-commit-config.yaml && grep -q 'golangci-lint' ecommerce-platform/.pre-commit-config.yaml",
+              "onFailure": {
+                "strategy": "regenerate",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "1.4.4",
+              "description": "Create Makefile for common commands",
+              "type": "concurrent",
+              "dependencies": ["1.1.3"],
+              "status": "pending",
+              "recommendedAgentRole": "devops-engineer",
+              "guidelinesRef": "Guidelines.md#Prompt-1.4.4",
+              "requirementsRef": null,
+              "definitionOfDone": [
+                "Makefile created with targets",
+                "build, test, test-coverage, lint, fmt targets",
+                "docker-build, docker-up, docker-down targets",
+                "Per-service targets (build-order, test-order, etc.)",
+                "help target shows all options"
+              ],
+              "acceptanceCriteria": [
+                "All targets work correctly",
+                "Works on Linux and macOS"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/Makefile"
+              ],
+              "verificationCommand": "cd ecommerce-platform && make help",
+              "onFailure": {
+                "strategy": "regenerate",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "phase-2",
+      "name": "Domain Layer",
+      "description": "Domain models, events, aggregates for all services following DDD",
+      "prerequisite": "phase-1",
+      "totalTasks": 30,
+      "status": "pending",
+      "sections": [
+        {
+          "id": "2.1",
+          "name": "Order Service Domain",
+          "blocking": false,
+          "tasks": [
+            {
+              "id": "2.1.1",
+              "description": "Create OrderID value object",
+              "type": "concurrent",
+              "dependencies": ["1.2.8"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-2.1.6",
+              "requirementsRef": "Requirements.md#4-Domain-Events",
+              "definitionOfDone": [
+                "OrderID type defined (wrapping string)",
+                "NewOrderID() generates UUID",
+                "ParseOrderID(string) validates and creates",
+                "String() and IsEmpty() methods",
+                "Unit tests"
+              ],
+              "acceptanceCriteria": [
+                "Immutable value object",
+                "Invalid IDs rejected"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/order/internal/domain/valueobject/orderid.go",
+                "ecommerce-platform/services/order/internal/domain/valueobject/orderid_test.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/order && go test ./internal/domain/valueobject/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "2.1.2",
+              "description": "Create CustomerID value object",
+              "type": "concurrent",
+              "dependencies": ["1.2.8"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-2.1.6",
+              "requirementsRef": null,
+              "definitionOfDone": [
+                "CustomerID type similar to OrderID",
+                "Validation on construction",
+                "Unit tests"
+              ],
+              "acceptanceCriteria": [
+                "Immutable value object"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/order/internal/domain/valueobject/customerid.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/order && go test ./internal/domain/valueobject/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "2.1.3",
+              "description": "Create Money value object",
+              "type": "concurrent",
+              "dependencies": ["1.2.8"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-2.1.6",
+              "requirementsRef": null,
+              "definitionOfDone": [
+                "Money struct with Amount (int64 cents) and Currency",
+                "NewMoney constructor",
+                "Add, Subtract methods (return new Money)",
+                "Equals method",
+                "Currency validation (ISO 4217)",
+                "Unit tests"
+              ],
+              "acceptanceCriteria": [
+                "Immutable operations",
+                "Currency codes validated"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/order/internal/domain/valueobject/money.go",
+                "ecommerce-platform/services/order/internal/domain/valueobject/money_test.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/order && go test ./internal/domain/valueobject/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "2.1.4",
+              "description": "Create OrderStatus enum",
+              "type": "concurrent",
+              "dependencies": ["1.2.8"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-2.1.6",
+              "requirementsRef": "Requirements.md#5-Order-State-Machine",
+              "definitionOfDone": [
+                "OrderStatus type with constants",
+                "PENDING, CREATED, PAID, SHIPPED, COMPLETED, CANCELLED, FAILED",
+                "String() method",
+                "IsValid() method",
+                "Unit tests"
+              ],
+              "acceptanceCriteria": [
+                "All states from Requirements.md covered"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/order/internal/domain/valueobject/orderstatus.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/order && go test ./internal/domain/valueobject/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "2.1.5",
+              "description": "Create OrderItem entity",
+              "type": "sequential",
+              "dependencies": ["2.1.3"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-2.1.6",
+              "requirementsRef": null,
+              "definitionOfDone": [
+                "OrderItem struct with ProductID, Name, Quantity, UnitPrice",
+                "TotalPrice() method using Money",
+                "Validation (quantity > 0)",
+                "Unit tests"
+              ],
+              "acceptanceCriteria": [
+                "Entity with identity",
+                "Price calculations correct"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/order/internal/domain/entity/orderitem.go",
+                "ecommerce-platform/services/order/internal/domain/entity/orderitem_test.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/order && go test ./internal/domain/entity/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "2.1.6",
+              "description": "Create Order aggregate root",
+              "type": "sequential",
+              "dependencies": ["2.1.1", "2.1.2", "2.1.3", "2.1.4", "2.1.5"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-2.1.6",
+              "requirementsRef": "Requirements.md#5-Order-State-Machine",
+              "definitionOfDone": [
+                "Order struct with ID, CustomerID, Items, TotalAmount, Status, timestamps",
+                "Private events slice for domain events",
+                "NewOrder constructor with validation",
+                "AddItem, RemoveItem methods",
+                "MarkAsPaid, Ship, Deliver, Cancel methods with state guards",
+                "Events() and ClearEvents() methods",
+                "Comprehensive unit tests"
+              ],
+              "acceptanceCriteria": [
+                "State machine rules enforced",
+                "Domain events emitted on state changes",
+                "Invalid transitions return errors",
+                "80%+ test coverage"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/order/internal/domain/aggregate/order.go",
+                "ecommerce-platform/services/order/internal/domain/aggregate/order_test.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/order && go test ./internal/domain/aggregate/... -cover -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "2.1.7",
+              "description": "Create OrderCreated domain event",
+              "type": "concurrent",
+              "dependencies": ["2.1.6"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-2.1.7-2.1.9",
+              "requirementsRef": "Requirements.md#4.1-Order-Domain-Events",
+              "definitionOfDone": [
+                "OrderCreated struct implementing DomainEvent",
+                "Fields: OrderID, CustomerID, Items, TotalAmount, OccurredAt",
+                "NewOrderCreated constructor",
+                "Unit tests"
+              ],
+              "acceptanceCriteria": [
+                "Implements DomainEvent interface",
+                "JSON serializable"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/order/internal/domain/event/order_created.go",
+                "ecommerce-platform/services/order/internal/domain/event/order_created_test.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/order && go test ./internal/domain/event/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "2.1.8",
+              "description": "Create OrderCancelled domain event",
+              "type": "concurrent",
+              "dependencies": ["2.1.6"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-2.1.7-2.1.9",
+              "requirementsRef": "Requirements.md#4.1-Order-Domain-Events",
+              "definitionOfDone": [
+                "OrderCancelled struct implementing DomainEvent",
+                "Fields: OrderID, Reason, OccurredAt",
+                "NewOrderCancelled constructor",
+                "Unit tests"
+              ],
+              "acceptanceCriteria": [
+                "Implements DomainEvent interface"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/order/internal/domain/event/order_cancelled.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/order && go test ./internal/domain/event/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "2.1.9",
+              "description": "Create OrderStatusChanged domain event",
+              "type": "concurrent",
+              "dependencies": ["2.1.6"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-2.1.7-2.1.9",
+              "requirementsRef": "Requirements.md#4.1-Order-Domain-Events",
+              "definitionOfDone": [
+                "OrderStatusChanged struct",
+                "Fields: OrderID, OldStatus, NewStatus, OccurredAt",
+                "Unit tests"
+              ],
+              "acceptanceCriteria": [
+                "Captures before and after status"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/order/internal/domain/event/order_status_changed.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/order && go test ./internal/domain/event/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "2.1.10",
+              "description": "Define OrderRepository interface",
+              "type": "sequential",
+              "dependencies": ["2.1.6"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Layer-Specific-Guidelines",
+              "requirementsRef": null,
+              "definitionOfDone": [
+                "OrderRepository interface defined",
+                "Methods: Save, FindByID, FindByCustomerID, Update",
+                "Context as first parameter",
+                "Returns domain errors"
+              ],
+              "acceptanceCriteria": [
+                "Interface in domain layer",
+                "No infrastructure dependencies"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/order/internal/domain/repository/order_repository.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/order && go build ./internal/domain/...",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "2.1.11",
+              "description": "Write comprehensive Order domain unit tests",
+              "type": "sequential",
+              "dependencies": ["2.1.7", "2.1.8", "2.1.9", "2.1.10"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Testing-Standards",
+              "requirementsRef": "Requirements.md#11-Acceptance-Criteria",
+              "definitionOfDone": [
+                "All domain components tested",
+                "State machine transitions tested",
+                "Event emission verified",
+                "Edge cases covered",
+                "80%+ coverage"
+              ],
+              "acceptanceCriteria": [
+                "All tests pass",
+                "Coverage >= 80%"
+              ],
+              "expectedArtifacts": [],
+              "verificationCommand": "cd ecommerce-platform/services/order && go test ./internal/domain/... -cover -race",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            }
+          ]
+        },
+        {
+          "id": "2.2",
+          "name": "Payment Service Domain",
+          "blocking": false,
+          "tasks": [
+            {
+              "id": "2.2.1",
+              "description": "Create PaymentID value object",
+              "type": "concurrent",
+              "dependencies": ["1.2.8"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-2.2.3",
+              "requirementsRef": null,
+              "definitionOfDone": [
+                "PaymentID type similar to OrderID",
+                "Validation and generation",
+                "Unit tests"
+              ],
+              "acceptanceCriteria": [
+                "Immutable value object"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/payment/internal/domain/valueobject/paymentid.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/payment && go test ./internal/domain/valueobject/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "2.2.2",
+              "description": "Create PaymentStatus enum",
+              "type": "concurrent",
+              "dependencies": ["1.2.8"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-2.2.3",
+              "requirementsRef": null,
+              "definitionOfDone": [
+                "PaymentStatus type with constants",
+                "PENDING, PROCESSING, COMPLETED, FAILED, REFUNDED",
+                "String() and IsValid() methods"
+              ],
+              "acceptanceCriteria": [
+                "All payment states covered"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/payment/internal/domain/valueobject/paymentstatus.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/payment && go test ./internal/domain/valueobject/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "2.2.3",
+              "description": "Create Payment aggregate root",
+              "type": "sequential",
+              "dependencies": ["2.2.1", "2.2.2"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-2.2.3",
+              "requirementsRef": "Requirements.md#4.2-Payment-Domain-Events",
+              "definitionOfDone": [
+                "Payment struct with ID, OrderID, Amount, Status, PaymentMethod, timestamps",
+                "NewPayment constructor",
+                "Process method (simulates payment)",
+                "Refund method",
+                "Events() and ClearEvents()",
+                "Unit tests with 80%+ coverage"
+              ],
+              "acceptanceCriteria": [
+                "State transitions correct",
+                "Events emitted on state changes"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/payment/internal/domain/aggregate/payment.go",
+                "ecommerce-platform/services/payment/internal/domain/aggregate/payment_test.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/payment && go test ./internal/domain/aggregate/... -cover -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "2.2.4",
+              "description": "Create PaymentReceived domain event",
+              "type": "concurrent",
+              "dependencies": ["2.2.3"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": null,
+              "requirementsRef": "Requirements.md#4.2-Payment-Domain-Events",
+              "definitionOfDone": [
+                "PaymentReceived struct implementing DomainEvent",
+                "Fields: OrderID, PaymentID, Amount, OccurredAt",
+                "Unit tests"
+              ],
+              "acceptanceCriteria": [
+                "Implements DomainEvent interface"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/payment/internal/domain/event/payment_received.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/payment && go test ./internal/domain/event/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "2.2.5",
+              "description": "Create PaymentFailed domain event",
+              "type": "concurrent",
+              "dependencies": ["2.2.3"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": null,
+              "requirementsRef": "Requirements.md#4.2-Payment-Domain-Events",
+              "definitionOfDone": [
+                "PaymentFailed struct",
+                "Fields: OrderID, Reason, OccurredAt",
+                "Unit tests"
+              ],
+              "acceptanceCriteria": [
+                "Captures failure reason"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/payment/internal/domain/event/payment_failed.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/payment && go test ./internal/domain/event/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "2.2.6",
+              "description": "Create RefundProcessed domain event",
+              "type": "concurrent",
+              "dependencies": ["2.2.3"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": null,
+              "requirementsRef": "Requirements.md#4.2-Payment-Domain-Events",
+              "definitionOfDone": [
+                "RefundProcessed struct",
+                "Fields: OrderID, RefundID, Amount, OccurredAt",
+                "Unit tests"
+              ],
+              "acceptanceCriteria": [
+                "Implements DomainEvent"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/payment/internal/domain/event/refund_processed.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/payment && go test ./internal/domain/event/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "2.2.7",
+              "description": "Define PaymentRepository interface",
+              "type": "sequential",
+              "dependencies": ["2.2.3"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Layer-Specific-Guidelines",
+              "requirementsRef": null,
+              "definitionOfDone": [
+                "PaymentRepository interface",
+                "Methods: Save, FindByID, FindByOrderID",
+                "Context as first parameter"
+              ],
+              "acceptanceCriteria": [
+                "Interface in domain layer"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/payment/internal/domain/repository/payment_repository.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/payment && go build ./internal/domain/...",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "2.2.8",
+              "description": "Write comprehensive Payment domain unit tests",
+              "type": "sequential",
+              "dependencies": ["2.2.4", "2.2.5", "2.2.6", "2.2.7"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Testing-Standards",
+              "requirementsRef": null,
+              "definitionOfDone": [
+                "All domain components tested",
+                "80%+ coverage"
+              ],
+              "acceptanceCriteria": [
+                "All tests pass"
+              ],
+              "expectedArtifacts": [],
+              "verificationCommand": "cd ecommerce-platform/services/payment && go test ./internal/domain/... -cover -race",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            }
+          ]
+        },
+        {
+          "id": "2.3",
+          "name": "Fulfillment Service Domain",
+          "blocking": false,
+          "tasks": [
+            {
+              "id": "2.3.1",
+              "description": "Create ShipmentID value object",
+              "type": "concurrent",
+              "dependencies": ["1.2.8"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-2.3.4",
+              "requirementsRef": null,
+              "definitionOfDone": [
+                "ShipmentID type",
+                "Validation and generation",
+                "Unit tests"
+              ],
+              "acceptanceCriteria": [
+                "Immutable value object"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/fulfillment/internal/domain/valueobject/shipmentid.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/fulfillment && go test ./internal/domain/valueobject/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "2.3.2",
+              "description": "Create ShipmentStatus enum",
+              "type": "concurrent",
+              "dependencies": ["1.2.8"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-2.3.4",
+              "requirementsRef": null,
+              "definitionOfDone": [
+                "ShipmentStatus type with constants",
+                "PENDING, PREPARING, SHIPPED, DELIVERED, FAILED, CANCELLED",
+                "String() and IsValid() methods"
+              ],
+              "acceptanceCriteria": [
+                "All shipment states covered"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/fulfillment/internal/domain/valueobject/shipmentstatus.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/fulfillment && go test ./internal/domain/valueobject/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "2.3.3",
+              "description": "Create Carrier value object",
+              "type": "concurrent",
+              "dependencies": ["1.2.8"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-2.3.4",
+              "requirementsRef": null,
+              "definitionOfDone": [
+                "Carrier type with name and code",
+                "Supported carriers: UPS, FEDEX, DHL, USPS",
+                "Validation",
+                "Unit tests"
+              ],
+              "acceptanceCriteria": [
+                "Multiple carriers supported"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/fulfillment/internal/domain/valueobject/carrier.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/fulfillment && go test ./internal/domain/valueobject/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "2.3.4",
+              "description": "Create Shipment aggregate root",
+              "type": "sequential",
+              "dependencies": ["2.3.1", "2.3.2", "2.3.3"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-2.3.4",
+              "requirementsRef": "Requirements.md#4.3-Fulfillment-Domain-Events",
+              "definitionOfDone": [
+                "Shipment struct with ID, OrderID, TrackingNumber, Carrier, Status, timestamps",
+                "NewShipment constructor",
+                "Ship method (generates tracking number)",
+                "MarkDelivered method",
+                "Cancel method",
+                "Events() and ClearEvents()",
+                "Unit tests with 80%+ coverage"
+              ],
+              "acceptanceCriteria": [
+                "Tracking number generated on ship",
+                "State transitions correct"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/fulfillment/internal/domain/aggregate/shipment.go",
+                "ecommerce-platform/services/fulfillment/internal/domain/aggregate/shipment_test.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/fulfillment && go test ./internal/domain/aggregate/... -cover -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "2.3.5",
+              "description": "Create OrderShipped domain event",
+              "type": "concurrent",
+              "dependencies": ["2.3.4"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": null,
+              "requirementsRef": "Requirements.md#4.3-Fulfillment-Domain-Events",
+              "definitionOfDone": [
+                "OrderShipped struct",
+                "Fields: OrderID, TrackingNumber, Carrier, OccurredAt",
+                "Unit tests"
+              ],
+              "acceptanceCriteria": [
+                "Contains tracking info"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/fulfillment/internal/domain/event/order_shipped.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/fulfillment && go test ./internal/domain/event/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "2.3.6",
+              "description": "Create ShipmentFailed domain event",
+              "type": "concurrent",
+              "dependencies": ["2.3.4"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": null,
+              "requirementsRef": "Requirements.md#4.3-Fulfillment-Domain-Events",
+              "definitionOfDone": [
+                "ShipmentFailed struct",
+                "Fields: OrderID, Reason, OccurredAt",
+                "Unit tests"
+              ],
+              "acceptanceCriteria": [
+                "Captures failure reason"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/fulfillment/internal/domain/event/shipment_failed.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/fulfillment && go test ./internal/domain/event/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "2.3.7",
+              "description": "Create OrderDelivered domain event",
+              "type": "concurrent",
+              "dependencies": ["2.3.4"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": null,
+              "requirementsRef": "Requirements.md#4.3-Fulfillment-Domain-Events",
+              "definitionOfDone": [
+                "OrderDelivered struct",
+                "Fields: OrderID, DeliveredAt, OccurredAt",
+                "Unit tests"
+              ],
+              "acceptanceCriteria": [
+                "Contains delivery timestamp"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/fulfillment/internal/domain/event/order_delivered.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/fulfillment && go test ./internal/domain/event/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "2.3.8",
+              "description": "Define ShipmentRepository interface",
+              "type": "sequential",
+              "dependencies": ["2.3.4"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Layer-Specific-Guidelines",
+              "requirementsRef": null,
+              "definitionOfDone": [
+                "ShipmentRepository interface",
+                "Methods: Save, FindByID, FindByOrderID",
+                "Context as first parameter"
+              ],
+              "acceptanceCriteria": [
+                "Interface in domain layer"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/fulfillment/internal/domain/repository/shipment_repository.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/fulfillment && go build ./internal/domain/...",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "2.3.9",
+              "description": "Write comprehensive Fulfillment domain unit tests",
+              "type": "sequential",
+              "dependencies": ["2.3.5", "2.3.6", "2.3.7", "2.3.8"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Testing-Standards",
+              "requirementsRef": null,
+              "definitionOfDone": [
+                "All domain components tested",
+                "80%+ coverage"
+              ],
+              "acceptanceCriteria": [
+                "All tests pass"
+              ],
+              "expectedArtifacts": [],
+              "verificationCommand": "cd ecommerce-platform/services/fulfillment && go test ./internal/domain/... -cover -race",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "phase-3",
+      "name": "Application Layer",
+      "description": "Use cases, command/query handlers, SAGA orchestration",
+      "prerequisite": "phase-2",
+      "totalTasks": 34,
+      "status": "pending",
+      "sections": [
+        {
+          "id": "3.1",
+          "name": "Order Service Application",
+          "blocking": false,
+          "tasks": [
+            {
+              "id": "3.1.1",
+              "description": "Create CreateOrderCommand",
+              "type": "concurrent",
+              "dependencies": ["2.1.12"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-3.1.1",
+              "requirementsRef": "Requirements.md#4.1-Order-Service",
+              "definitionOfDone": [
+                "CreateOrderCommand struct defined",
+                "Command validation logic",
+                "Unit tests for command"
+              ],
+              "acceptanceCriteria": [
+                "Command follows CQRS pattern",
+                "Validation passes all test cases"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/order/internal/application/command/createorder.go",
+                "ecommerce-platform/services/order/internal/application/command/createorder_test.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/order && go test ./internal/application/command/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "3.1.2",
+              "description": "Create CancelOrderCommand",
+              "type": "concurrent",
+              "dependencies": ["2.1.12"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-3.1.2",
+              "requirementsRef": "Requirements.md#4.1-Order-Service",
+              "definitionOfDone": [
+                "CancelOrderCommand struct defined",
+                "Command validation logic",
+                "Unit tests for command"
+              ],
+              "acceptanceCriteria": [
+                "Command follows CQRS pattern",
+                "Validation passes all test cases"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/order/internal/application/command/cancelorder.go",
+                "ecommerce-platform/services/order/internal/application/command/cancelorder_test.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/order && go test ./internal/application/command/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "3.1.3",
+              "description": "Create UpdateOrderStatusCommand",
+              "type": "concurrent",
+              "dependencies": ["2.1.12"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-3.1.3",
+              "requirementsRef": "Requirements.md#4.1-Order-Service",
+              "definitionOfDone": [
+                "UpdateOrderStatusCommand struct defined",
+                "Command validation logic",
+                "Unit tests for command"
+              ],
+              "acceptanceCriteria": [
+                "Command follows CQRS pattern",
+                "Validation passes all test cases"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/order/internal/application/command/updateorderstatus.go",
+                "ecommerce-platform/services/order/internal/application/command/updateorderstatus_test.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/order && go test ./internal/application/command/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "3.1.4",
+              "description": "Create GetOrderQuery",
+              "type": "concurrent",
+              "dependencies": ["2.1.12"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-3.1.4",
+              "requirementsRef": "Requirements.md#4.1-Order-Service",
+              "definitionOfDone": [
+                "GetOrderQuery struct defined",
+                "Query validation logic",
+                "Unit tests for query"
+              ],
+              "acceptanceCriteria": [
+                "Query follows CQRS pattern",
+                "Validation passes all test cases"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/order/internal/application/query/getorder.go",
+                "ecommerce-platform/services/order/internal/application/query/getorder_test.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/order && go test ./internal/application/query/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "3.1.5",
+              "description": "Create ListOrdersQuery",
+              "type": "concurrent",
+              "dependencies": ["2.1.12"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-3.1.5",
+              "requirementsRef": "Requirements.md#4.1-Order-Service",
+              "definitionOfDone": [
+                "ListOrdersQuery struct defined",
+                "Query validation logic",
+                "Unit tests for query"
+              ],
+              "acceptanceCriteria": [
+                "Query follows CQRS pattern",
+                "Validation passes all test cases"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/order/internal/application/query/listorders.go",
+                "ecommerce-platform/services/order/internal/application/query/listorders_test.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/order && go test ./internal/application/query/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "3.1.6",
+              "description": "Implement CreateOrderHandler",
+              "type": "sequential",
+              "dependencies": ["3.1.1"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-3.1.6",
+              "requirementsRef": "Requirements.md#4.1-Order-Service",
+              "definitionOfDone": [
+                "CreateOrderHandler implements CommandHandler interface",
+                "Handler processes CreateOrderCommand",
+                "Publishes OrderCreated domain event",
+                "Unit tests for handler"
+              ],
+              "acceptanceCriteria": [
+                "Handler follows clean architecture",
+                "Event published to outbox",
+                "All tests pass"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/order/internal/application/handler/createorder.go",
+                "ecommerce-platform/services/order/internal/application/handler/createorder_test.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/order && go test ./internal/application/handler/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "3.1.7",
+              "description": "Implement CancelOrderHandler",
+              "type": "sequential",
+              "dependencies": ["3.1.2"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-3.1.7",
+              "requirementsRef": "Requirements.md#4.1-Order-Service",
+              "definitionOfDone": [
+                "CancelOrderHandler implements CommandHandler interface",
+                "Handler processes CancelOrderCommand",
+                "Publishes OrderCancelled domain event",
+                "Unit tests for handler"
+              ],
+              "acceptanceCriteria": [
+                "Handler follows clean architecture",
+                "Event published to outbox",
+                "All tests pass"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/order/internal/application/handler/cancelorder.go",
+                "ecommerce-platform/services/order/internal/application/handler/cancelorder_test.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/order && go test ./internal/application/handler/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "3.1.8",
+              "description": "Implement UpdateOrderStatusHandler",
+              "type": "sequential",
+              "dependencies": ["3.1.3"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-3.1.8",
+              "requirementsRef": "Requirements.md#4.1-Order-Service",
+              "definitionOfDone": [
+                "UpdateOrderStatusHandler implements CommandHandler interface",
+                "Handler processes UpdateOrderStatusCommand",
+                "Publishes OrderStatusUpdated domain event",
+                "Unit tests for handler"
+              ],
+              "acceptanceCriteria": [
+                "Handler follows clean architecture",
+                "Event published to outbox",
+                "All tests pass"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/order/internal/application/handler/updateorderstatus.go",
+                "ecommerce-platform/services/order/internal/application/handler/updateorderstatus_test.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/order && go test ./internal/application/handler/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "3.1.9",
+              "description": "Implement GetOrderHandler",
+              "type": "sequential",
+              "dependencies": ["3.1.4"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-3.1.9",
+              "requirementsRef": "Requirements.md#4.1-Order-Service",
+              "definitionOfDone": [
+                "GetOrderHandler implements QueryHandler interface",
+                "Handler processes GetOrderQuery",
+                "Returns OrderDTO",
+                "Unit tests for handler"
+              ],
+              "acceptanceCriteria": [
+                "Handler follows CQRS pattern",
+                "DTO properly mapped",
+                "All tests pass"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/order/internal/application/handler/getorder.go",
+                "ecommerce-platform/services/order/internal/application/handler/getorder_test.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/order && go test ./internal/application/handler/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "3.1.10",
+              "description": "Implement ListOrdersHandler",
+              "type": "sequential",
+              "dependencies": ["3.1.5"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-3.1.10",
+              "requirementsRef": "Requirements.md#4.1-Order-Service",
+              "definitionOfDone": [
+                "ListOrdersHandler implements QueryHandler interface",
+                "Handler processes ListOrdersQuery",
+                "Returns []OrderDTO with pagination",
+                "Unit tests for handler"
+              ],
+              "acceptanceCriteria": [
+                "Handler follows CQRS pattern",
+                "Pagination implemented",
+                "All tests pass"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/order/internal/application/handler/listorders.go",
+                "ecommerce-platform/services/order/internal/application/handler/listorders_test.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/order && go test ./internal/application/handler/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            }
+          ]
+        },
+        {
+          "id": "3.2",
+          "name": "SAGA Orchestrator",
+          "blocking": true,
+          "tasks": [
+            {
+              "id": "3.2.1",
+              "description": "Create OrderSaga structure",
+              "type": "sequential",
+              "dependencies": ["3.1.6", "3.1.7", "3.1.8", "3.1.9", "3.1.10"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-3.2.1",
+              "requirementsRef": "Requirements.md#2.2-SAGA-Pattern-Requirements",
+              "definitionOfDone": [
+                "OrderSaga struct defined",
+                "Implements Saga interface",
+                "State management logic",
+                "Unit tests for saga structure"
+              ],
+              "acceptanceCriteria": [
+                "Saga follows choreography pattern",
+                "State transitions are correct",
+                "All tests pass"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/order/internal/application/saga/ordersaga.go",
+                "ecommerce-platform/services/order/internal/application/saga/ordersaga_test.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/order && go test ./internal/application/saga/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "3.2.2",
+              "description": "Implement HandlePaymentReceived",
+              "type": "concurrent",
+              "dependencies": ["3.2.1"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-3.2.2",
+              "requirementsRef": "Requirements.md#2.2-SAGA-Pattern-Requirements",
+              "definitionOfDone": [
+                "HandlePaymentReceived method implemented",
+                "Order status updated to PAID",
+                "Compensation logic prepared",
+                "Unit tests for handler"
+              ],
+              "acceptanceCriteria": [
+                "Order state correctly updated",
+                "Event handling is idempotent",
+                "All tests pass"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/order/internal/application/saga/ordersaga.go (updated)",
+                "ecommerce-platform/services/order/internal/application/saga/ordersaga_test.go (updated)"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/order && go test ./internal/application/saga/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "3.2.3",
+              "description": "Implement HandlePaymentFailed",
+              "type": "concurrent",
+              "dependencies": ["3.2.1"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-3.2.3",
+              "requirementsRef": "Requirements.md#2.2-SAGA-Pattern-Requirements",
+              "definitionOfDone": [
+                "HandlePaymentFailed method implemented",
+                "Order status updated to FAILED",
+                "Compensation operations triggered",
+                "Unit tests for handler"
+              ],
+              "acceptanceCriteria": [
+                "Order state correctly updated",
+                "Compensation logic executed",
+                "All tests pass"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/order/internal/application/saga/ordersaga.go (updated)",
+                "ecommerce-platform/services/order/internal/application/saga/ordersaga_test.go (updated)"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/order && go test ./internal/application/saga/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "3.2.4",
+              "description": "Implement HandleOrderShipped",
+              "type": "concurrent",
+              "dependencies": ["3.2.1"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-3.2.4",
+              "requirementsRef": "Requirements.md#2.2-SAGA-Pattern-Requirements",
+              "definitionOfDone": [
+                "HandleOrderShipped method implemented",
+                "Order status updated to SHIPPED",
+                "Compensation logic prepared",
+                "Unit tests for handler"
+              ],
+              "acceptanceCriteria": [
+                "Order state correctly updated",
+                "Event handling is idempotent",
+                "All tests pass"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/order/internal/application/saga/ordersaga.go (updated)",
+                "ecommerce-platform/services/order/internal/application/saga/ordersaga_test.go (updated)"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/order && go test ./internal/application/saga/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "3.2.5",
+              "description": "Implement HandleShipmentFailed",
+              "type": "concurrent",
+              "dependencies": ["3.2.1"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-3.2.5",
+              "requirementsRef": "Requirements.md#2.2-SAGA-Pattern-Requirements",
+              "definitionOfDone": [
+                "HandleShipmentFailed method implemented",
+                "Order status updated to FAILED",
+                "Compensation operations triggered",
+                "Unit tests for handler"
+              ],
+              "acceptanceCriteria": [
+                "Order state correctly updated",
+                "Compensation logic executed",
+                "All tests pass"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/order/internal/application/saga/ordersaga.go (updated)",
+                "ecommerce-platform/services/order/internal/application/saga/ordersaga_test.go (updated)"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/order && go test ./internal/application/saga/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "3.2.6",
+              "description": "Implement HandleOrderDelivered",
+              "type": "concurrent",
+              "dependencies": ["3.2.1"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-3.2.6",
+              "requirementsRef": "Requirements.md#2.2-SAGA-Pattern-Requirements",
+              "definitionOfDone": [
+                "HandleOrderDelivered method implemented",
+                "Order status updated to DELIVERED",
+                "SAGA completion logic",
+                "Unit tests for handler"
+              ],
+              "acceptanceCriteria": [
+                "Order state correctly updated",
+                "SAGA marked as complete",
+                "All tests pass"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/order/internal/application/saga/ordersaga.go (updated)",
+                "ecommerce-platform/services/order/internal/application/saga/ordersaga_test.go (updated)"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/order && go test ./internal/application/saga/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "3.2.7",
+              "description": "Implement compensation logic",
+              "type": "sequential",
+              "dependencies": ["3.2.2", "3.2.3", "3.2.4", "3.2.5", "3.2.6"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-3.2.7",
+              "requirementsRef": "Requirements.md#2.3-Compensation-Operations",
+              "definitionOfDone": [
+                "Compensation methods implemented",
+                "Rollback logic for each failure scenario",
+                "Idempotent compensation operations",
+                "Unit tests for compensation"
+              ],
+              "acceptanceCriteria": [
+                "All compensation scenarios covered",
+                "Operations are idempotent",
+                "All tests pass"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/order/internal/application/saga/ordersaga.go (updated)",
+                "ecommerce-platform/services/order/internal/application/saga/ordersaga_test.go (updated)"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/order && go test ./internal/application/saga/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "3.2.8",
+              "description": "Write SAGA integration tests",
+              "type": "sequential",
+              "dependencies": ["3.2.7"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-3.2.8",
+              "requirementsRef": "Requirements.md#2.2-SAGA-Pattern-Requirements",
+              "definitionOfDone": [
+                "End-to-end SAGA flow tests",
+                "Happy path and failure scenarios",
+                "Compensation testing",
+                "Integration test suite"
+              ],
+              "acceptanceCriteria": [
+                "All SAGA flows tested",
+                "Failure scenarios covered",
+                "Tests are deterministic",
+                "All tests pass"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/order/internal/application/saga/ordersaga_integration_test.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/order && go test ./internal/application/saga/... -v -tags=integration",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            }
+          ]
+        },
+        {
+          "id": "3.3",
+          "name": "Payment Service Application",
+          "blocking": false,
+          "tasks": [
+            {
+              "id": "3.3.1",
+              "description": "Create ProcessPaymentCommand",
+              "type": "concurrent",
+              "dependencies": ["2.2.8"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-3.3.1",
+              "requirementsRef": "Requirements.md#4.2-Payment-Service",
+              "definitionOfDone": [
+                "ProcessPaymentCommand struct defined",
+                "Command validation logic",
+                "Unit tests for command"
+              ],
+              "acceptanceCriteria": [
+                "Command follows CQRS pattern",
+                "Validation passes all test cases"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/payment/internal/application/command/processpayment.go",
+                "ecommerce-platform/services/payment/internal/application/command/processpayment_test.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/payment && go test ./internal/application/command/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "3.3.2",
+              "description": "Create RefundPaymentCommand",
+              "type": "concurrent",
+              "dependencies": ["2.2.8"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-3.3.2",
+              "requirementsRef": "Requirements.md#4.2-Payment-Service",
+              "definitionOfDone": [
+                "RefundPaymentCommand struct defined",
+                "Command validation logic",
+                "Unit tests for command"
+              ],
+              "acceptanceCriteria": [
+                "Command follows CQRS pattern",
+                "Validation passes all test cases"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/payment/internal/application/command/refundpayment.go",
+                "ecommerce-platform/services/payment/internal/application/command/refundpayment_test.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/payment && go test ./internal/application/command/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "3.3.3",
+              "description": "Implement ProcessPaymentHandler",
+              "type": "sequential",
+              "dependencies": ["3.3.1"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-3.3.3",
+              "requirementsRef": "Requirements.md#4.2-Payment-Service",
+              "definitionOfDone": [
+                "ProcessPaymentHandler implements CommandHandler interface",
+                "Handler processes ProcessPaymentCommand",
+                "Publishes PaymentReceived or PaymentFailed domain event",
+                "Unit tests for handler"
+              ],
+              "acceptanceCriteria": [
+                "Handler follows clean architecture",
+                "Event published to outbox",
+                "All tests pass"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/payment/internal/application/handler/processpayment.go",
+                "ecommerce-platform/services/payment/internal/application/handler/processpayment_test.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/payment && go test ./internal/application/handler/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "3.3.4",
+              "description": "Implement RefundPaymentHandler",
+              "type": "sequential",
+              "dependencies": ["3.3.2"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-3.3.4",
+              "requirementsRef": "Requirements.md#4.2-Payment-Service",
+              "definitionOfDone": [
+                "RefundPaymentHandler implements CommandHandler interface",
+                "Handler processes RefundPaymentCommand",
+                "Publishes PaymentRefunded domain event",
+                "Unit tests for handler"
+              ],
+              "acceptanceCriteria": [
+                "Handler follows clean architecture",
+                "Event published to outbox",
+                "All tests pass"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/payment/internal/application/handler/refundpayment.go",
+                "ecommerce-platform/services/payment/internal/application/handler/refundpayment_test.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/payment && go test ./internal/application/handler/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "3.3.5",
+              "description": "Create OrderCreatedEventHandler",
+              "type": "sequential",
+              "dependencies": ["3.3.3"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-3.3.5",
+              "requirementsRef": "Requirements.md#4.2-Payment-Service",
+              "definitionOfDone": [
+                "OrderCreatedEventHandler implements EventHandler interface",
+                "Handler processes OrderCreated events",
+                "Triggers payment processing",
+                "Unit tests for handler"
+              ],
+              "acceptanceCriteria": [
+                "Handler follows event-driven pattern",
+                "Payment processing initiated",
+                "All tests pass"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/payment/internal/application/handler/ordercreated.go",
+                "ecommerce-platform/services/payment/internal/application/handler/ordercreated_test.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/payment && go test ./internal/application/handler/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "3.3.6",
+              "description": "Create OrderCancelledEventHandler",
+              "type": "sequential",
+              "dependencies": ["3.3.4"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-3.3.6",
+              "requirementsRef": "Requirements.md#4.2-Payment-Service",
+              "definitionOfDone": [
+                "OrderCancelledEventHandler implements EventHandler interface",
+                "Handler processes OrderCancelled events",
+                "Triggers payment refund",
+                "Unit tests for handler"
+              ],
+              "acceptanceCriteria": [
+                "Handler follows event-driven pattern",
+                "Refund processing initiated",
+                "All tests pass"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/payment/internal/application/handler/ordercancelled.go",
+                "ecommerce-platform/services/payment/internal/application/handler/ordercancelled_test.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/payment && go test ./internal/application/handler/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "3.3.7",
+              "description": "Write Payment application tests",
+              "type": "sequential",
+              "dependencies": ["3.3.5", "3.3.6"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-3.3.7",
+              "requirementsRef": "Requirements.md#4.2-Payment-Service",
+              "definitionOfDone": [
+                "Unit tests for all handlers",
+                "Integration tests for event flows",
+                "Test coverage meets requirements",
+                "All tests pass"
+              ],
+              "acceptanceCriteria": [
+                "Test coverage > 80%",
+                "All critical paths tested",
+                "Tests are deterministic"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/payment/internal/application/handler/*_test.go",
+                "ecommerce-platform/services/payment/internal/application/command/*_test.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/payment && go test ./internal/application/... -v -cover",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            }
+          ]
+        },
+        {
+          "id": "3.4",
+          "name": "Fulfillment Service Application",
+          "blocking": false,
+          "tasks": [
+            {
+              "id": "3.4.1",
+              "description": "Create CreateShipmentCommand",
+              "type": "concurrent",
+              "dependencies": ["2.3.9"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-3.4.1",
+              "requirementsRef": "Requirements.md#4.3-Fulfillment-Service",
+              "definitionOfDone": [
+                "CreateShipmentCommand struct defined",
+                "Command validation logic",
+                "Unit tests for command"
+              ],
+              "acceptanceCriteria": [
+                "Command follows CQRS pattern",
+                "Validation passes all test cases"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/fulfillment/internal/application/command/createshipment.go",
+                "ecommerce-platform/services/fulfillment/internal/application/command/createshipment_test.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/fulfillment && go test ./internal/application/command/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "3.4.2",
+              "description": "Create ShipOrderCommand",
+              "type": "concurrent",
+              "dependencies": ["2.3.9"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-3.4.2",
+              "requirementsRef": "Requirements.md#4.3-Fulfillment-Service",
+              "definitionOfDone": [
+                "ShipOrderCommand struct defined",
+                "Command validation logic",
+                "Unit tests for command"
+              ],
+              "acceptanceCriteria": [
+                "Command follows CQRS pattern",
+                "Validation passes all test cases"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/fulfillment/internal/application/command/shiporder.go",
+                "ecommerce-platform/services/fulfillment/internal/application/command/shiporder_test.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/fulfillment && go test ./internal/application/command/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "3.4.3",
+              "description": "Create CancelShipmentCommand",
+              "type": "concurrent",
+              "dependencies": ["2.3.9"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-3.4.3",
+              "requirementsRef": "Requirements.md#4.3-Fulfillment-Service",
+              "definitionOfDone": [
+                "CancelShipmentCommand struct defined",
+                "Command validation logic",
+                "Unit tests for command"
+              ],
+              "acceptanceCriteria": [
+                "Command follows CQRS pattern",
+                "Validation passes all test cases"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/fulfillment/internal/application/command/cancelshipment.go",
+                "ecommerce-platform/services/fulfillment/internal/application/command/cancelshipment_test.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/fulfillment && go test ./internal/application/command/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "3.4.4",
+              "description": "Implement CreateShipmentHandler",
+              "type": "sequential",
+              "dependencies": ["3.4.1"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-3.4.4",
+              "requirementsRef": "Requirements.md#4.3-Fulfillment-Service",
+              "definitionOfDone": [
+                "CreateShipmentHandler implements CommandHandler interface",
+                "Handler processes CreateShipmentCommand",
+                "Creates shipment entity",
+                "Unit tests for handler"
+              ],
+              "acceptanceCriteria": [
+                "Handler follows clean architecture",
+                "Shipment entity created",
+                "All tests pass"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/fulfillment/internal/application/handler/createshipment.go",
+                "ecommerce-platform/services/fulfillment/internal/application/handler/createshipment_test.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/fulfillment && go test ./internal/application/handler/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "3.4.5",
+              "description": "Implement ShipOrderHandler",
+              "type": "sequential",
+              "dependencies": ["3.4.2"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-3.4.5",
+              "requirementsRef": "Requirements.md#4.3-Fulfillment-Service",
+              "definitionOfDone": [
+                "ShipOrderHandler implements CommandHandler interface",
+                "Handler processes ShipOrderCommand",
+                "Publishes OrderShipped domain event",
+                "Unit tests for handler"
+              ],
+              "acceptanceCriteria": [
+                "Handler follows clean architecture",
+                "Event published to outbox",
+                "All tests pass"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/fulfillment/internal/application/handler/shiporder.go",
+                "ecommerce-platform/services/fulfillment/internal/application/handler/shiporder_test.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/fulfillment && go test ./internal/application/handler/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "3.4.6",
+              "description": "Implement CancelShipmentHandler",
+              "type": "sequential",
+              "dependencies": ["3.4.3"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-3.4.6",
+              "requirementsRef": "Requirements.md#4.3-Fulfillment-Service",
+              "definitionOfDone": [
+                "CancelShipmentHandler implements CommandHandler interface",
+                "Handler processes CancelShipmentCommand",
+                "Publishes ShipmentCancelled domain event",
+                "Unit tests for handler"
+              ],
+              "acceptanceCriteria": [
+                "Handler follows clean architecture",
+                "Event published to outbox",
+                "All tests pass"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/fulfillment/internal/application/handler/cancelshipment.go",
+                "ecommerce-platform/services/fulfillment/internal/application/handler/cancelshipment_test.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/fulfillment && go test ./internal/application/handler/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "3.4.7",
+              "description": "Create PaymentReceivedEventHandler",
+              "type": "sequential",
+              "dependencies": ["3.4.5"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-3.4.7",
+              "requirementsRef": "Requirements.md#4.3-Fulfillment-Service",
+              "definitionOfDone": [
+                "PaymentReceivedEventHandler implements EventHandler interface",
+                "Handler processes PaymentReceived events",
+                "Triggers shipment creation",
+                "Unit tests for handler"
+              ],
+              "acceptanceCriteria": [
+                "Handler follows event-driven pattern",
+                "Shipment creation initiated",
+                "All tests pass"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/fulfillment/internal/application/handler/paymentreceived.go",
+                "ecommerce-platform/services/fulfillment/internal/application/handler/paymentreceived_test.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/fulfillment && go test ./internal/application/handler/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "3.4.8",
+              "description": "Create OrderCancelledEventHandler",
+              "type": "sequential",
+              "dependencies": ["3.4.6"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-3.4.8",
+              "requirementsRef": "Requirements.md#4.3-Fulfillment-Service",
+              "definitionOfDone": [
+                "OrderCancelledEventHandler implements EventHandler interface",
+                "Handler processes OrderCancelled events",
+                "Triggers shipment cancellation",
+                "Unit tests for handler"
+              ],
+              "acceptanceCriteria": [
+                "Handler follows event-driven pattern",
+                "Shipment cancellation initiated",
+                "All tests pass"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/fulfillment/internal/application/handler/ordercancelled.go",
+                "ecommerce-platform/services/fulfillment/internal/application/handler/ordercancelled_test.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/fulfillment && go test ./internal/application/handler/... -v",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "3.4.9",
+              "description": "Write Fulfillment application tests",
+              "type": "sequential",
+              "dependencies": ["3.4.7", "3.4.8"],
+              "status": "pending",
+              "recommendedAgentRole": "backend-developer",
+              "guidelinesRef": "Guidelines.md#Prompt-3.4.9",
+              "requirementsRef": "Requirements.md#4.3-Fulfillment-Service",
+              "definitionOfDone": [
+                "Unit tests for all handlers",
+                "Integration tests for event flows",
+                "Test coverage meets requirements",
+                "All tests pass"
+              ],
+              "acceptanceCriteria": [
+                "Test coverage > 80%",
+                "All critical paths tested",
+                "Tests are deterministic"
+              ],
+              "expectedArtifacts": [
+                "ecommerce-platform/services/fulfillment/internal/application/handler/*_test.go",
+                "ecommerce-platform/services/fulfillment/internal/application/command/*_test.go"
+              ],
+              "verificationCommand": "cd ecommerce-platform/services/fulfillment && go test ./internal/application/... -v -cover",
+              "onFailure": {
+                "strategy": "debug-and-fix",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "phase-4",
+      "name": "Infrastructure Layer",
+      "description": "MongoDB, Kafka, Debezium integration, outbox pattern",
+      "prerequisite": "phase-2",
+      "totalTasks": 37,
+      "status": "pending",
+      "summaryNote": "Detailed tasks available in Task.md. Key sections: 4.1 (MongoDB), 4.2 (Outbox), 4.3 (Kafka), 4.4 (Debezium), 4.5 (API), 4.6 (Polling fallback), 4.7 (Bootstrap)"
+    },
+    {
+      "id": "phase-5",
+      "name": "DevOps & CI/CD",
+      "description": "Containers, pipelines, GitOps setup, Istio Gateway API",
+      "prerequisite": "phase-3,phase-4",
+      "totalTasks": 52,
+      "status": "pending",
+      "summaryNote": "Detailed tasks available in Task.md. Key sections: 5.1 (Docker), 5.2 (GitHub Actions CI), 5.3 (Terraform), 5.4 (Helm), 5.5 (GitHub Actions CD), 5.6 (ArgoCD), 5.7 (Istio Gateway API)"
+    },
+    {
+      "id": "phase-6",
+      "name": "Observability",
+      "description": "Monitoring, dashboards, alerting",
+      "prerequisite": "phase-5",
+      "totalTasks": 25,
+      "status": "pending",
+      "summaryNote": "Detailed tasks available in Task.md. Key sections: 6.1 (Prometheus), 6.2 (Grafana), 6.3 (Alerting), 6.4 (Logging), 6.5 (Distributed Tracing)"
+    },
+    {
+      "id": "phase-7",
+      "name": "Quality Assurance",
+      "description": "Continuous quality gates, security scanning, performance validation, and compliance checks",
+      "prerequisite": null,
+      "totalTasks": 12,
+      "status": "pending",
+      "sections": [
+        {
+          "id": "7.1",
+          "name": "Quality Gates Setup",
+          "blocking": true,
+          "tasks": [
+            {
+              "id": "7.1.1",
+              "description": "Create quality gate scripts in scripts/quality/",
+              "type": "sequential",
+              "dependencies": [],
+              "status": "pending",
+              "recommendedAgentRole": "quality-agent",
+              "guidelinesRef": "Guidelines.md#Quality-Agent-Role",
+              "requirementsRef": null,
+              "definitionOfDone": [
+                "scripts/quality/ directory created",
+                "pre-commit-quality.sh script",
+                "ci-quality-gate.sh script",
+                "post-merge-validation.sh script"
+              ],
+              "acceptanceCriteria": [
+                "All scripts executable and syntactically correct"
+              ],
+              "expectedArtifacts": [
+                "scripts/quality/pre-commit-quality.sh",
+                "scripts/quality/ci-quality-gate.sh",
+                "scripts/quality/post-merge-validation.sh"
+              ],
+              "verificationCommand": "find scripts/quality -name '*.sh' -exec bash -n {} \\;",
+              "onFailure": {
+                "strategy": "regenerate",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "7.1.2",
+              "description": "Configure GitHub Actions quality workflows",
+              "type": "sequential",
+              "dependencies": ["7.1.1"],
+              "status": "pending",
+              "recommendedAgentRole": "quality-agent",
+              "guidelinesRef": "Guidelines.md#Integration-with-CI/CD",
+              "requirementsRef": null,
+              "definitionOfDone": [
+                ".github/workflows/quality-gate.yml created",
+                "Triggers on PR and push to main",
+                "Runs quality checks and blocks merges",
+                "Generates quality reports"
+              ],
+              "acceptanceCriteria": [
+                "Workflow validates successfully",
+                "Quality checks run on PR"
+              ],
+              "expectedArtifacts": [
+                ".github/workflows/quality-gate.yml"
+              ],
+              "verificationCommand": "test -f .github/workflows/quality-gate.yml && grep -q 'quality-agent' .github/workflows/quality-gate.yml",
+              "onFailure": {
+                "strategy": "regenerate",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "7.1.3",
+              "description": "Setup quality dashboard and reporting",
+              "type": "sequential",
+              "dependencies": ["7.1.2"],
+              "status": "pending",
+              "recommendedAgentRole": "quality-agent",
+              "guidelinesRef": "Guidelines.md#Quality-Dashboard",
+              "requirementsRef": null,
+              "definitionOfDone": [
+                "Quality metrics collection configured",
+                "Dashboard for tracking quality trends",
+                "Automated quality reports generation",
+                "Integration with CI/CD pipeline"
+              ],
+              "acceptanceCriteria": [
+                "Quality metrics are collected",
+                "Dashboard shows current quality status"
+              ],
+              "expectedArtifacts": [
+                "scripts/quality/generate-report.sh",
+                "docs/quality-dashboard.md"
+              ],
+              "verificationCommand": "test -f scripts/quality/generate-report.sh && test -f docs/quality-dashboard.md",
+              "onFailure": {
+                "strategy": "regenerate",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            }
+          ]
+        },
+        {
+          "id": "7.2",
+          "name": "Security Quality Gates",
+          "blocking": false,
+          "tasks": [
+            {
+              "id": "7.2.1",
+              "description": "Implement automated security scanning",
+              "type": "sequential",
+              "dependencies": ["7.1.3"],
+              "status": "pending",
+              "recommendedAgentRole": "quality-agent",
+              "guidelinesRef": "Guidelines.md#Quality-Agent-Prompts",
+              "requirementsRef": "Requirements.md#5-Security-Requirements",
+              "definitionOfDone": [
+                "OWASP dependency scanning configured",
+                "SAST (Static Application Security Testing) setup",
+                "Container image vulnerability scanning",
+                "Secrets detection in CI/CD"
+              ],
+              "acceptanceCriteria": [
+                "Critical vulnerabilities blocked",
+                "Security scan results integrated into quality gates"
+              ],
+              "expectedArtifacts": [
+                ".github/workflows/security-scan.yml",
+                "scripts/quality/security-scan.sh"
+              ],
+              "verificationCommand": "test -f .github/workflows/security-scan.yml && test -f scripts/quality/security-scan.sh",
+              "onFailure": {
+                "strategy": "regenerate",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "7.2.2",
+              "description": "Configure compliance checks (GDPR, PCI-DSS)",
+              "type": "sequential",
+              "dependencies": ["7.2.1"],
+              "status": "pending",
+              "recommendedAgentRole": "quality-agent",
+              "guidelinesRef": "Guidelines.md#Security-&-Compliance",
+              "requirementsRef": "Requirements.md#5.3-Compliance-Requirements",
+              "definitionOfDone": [
+                "GDPR compliance checks implemented",
+                "PCI-DSS requirements validation",
+                "Data protection impact assessments",
+                "Compliance reporting automation"
+              ],
+              "acceptanceCriteria": [
+                "Compliance violations block deployment",
+                "Automated compliance reports generated"
+              ],
+              "expectedArtifacts": [
+                "scripts/quality/compliance-check.sh",
+                "docs/compliance-checklist.md"
+              ],
+              "verificationCommand": "test -f scripts/quality/compliance-check.sh && test -f docs/compliance-checklist.md",
+              "onFailure": {
+                "strategy": "regenerate",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            }
+          ]
+        },
+        {
+          "id": "7.3",
+          "name": "Performance Quality Gates",
+          "blocking": false,
+          "tasks": [
+            {
+              "id": "7.3.1",
+              "description": "Setup automated performance testing",
+              "type": "sequential",
+              "dependencies": ["7.1.3"],
+              "status": "pending",
+              "recommendedAgentRole": "quality-agent",
+              "guidelinesRef": "Guidelines.md#Performance-Quality-Gate",
+              "requirementsRef": "Requirements.md#4-Performance-Requirements",
+              "definitionOfDone": [
+                "Load testing framework configured",
+                "Performance regression detection",
+                "Latency and throughput benchmarks",
+                "Resource utilization monitoring"
+              ],
+              "acceptanceCriteria": [
+                "Performance requirements validated",
+                "Regressions detected and blocked"
+              ],
+              "expectedArtifacts": [
+                "scripts/quality/performance-test.sh",
+                ".github/workflows/performance-test.yml"
+              ],
+              "verificationCommand": "test -f scripts/quality/performance-test.sh && test -f .github/workflows/performance-test.yml",
+              "onFailure": {
+                "strategy": "regenerate",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "7.3.2",
+              "description": "Implement code quality metrics collection",
+              "type": "sequential",
+              "dependencies": ["7.3.1"],
+              "status": "pending",
+              "recommendedAgentRole": "quality-agent",
+              "guidelinesRef": "Guidelines.md#Quality-Metrics",
+              "requirementsRef": null,
+              "definitionOfDone": [
+                "Cyclomatic complexity monitoring",
+                "Code duplication detection",
+                "Technical debt tracking",
+                "Code coverage reporting"
+              ],
+              "acceptanceCriteria": [
+                "Quality metrics collected automatically",
+                "Trends tracked over time"
+              ],
+              "expectedArtifacts": [
+                "scripts/quality/code-metrics.sh",
+                "docs/code-quality-metrics.md"
+              ],
+              "verificationCommand": "test -f scripts/quality/code-metrics.sh && test -f docs/code-quality-metrics.md",
+              "onFailure": {
+                "strategy": "regenerate",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            }
+          ]
+        },
+        {
+          "id": "7.4",
+          "name": "Continuous Quality Monitoring",
+          "blocking": false,
+          "tasks": [
+            {
+              "id": "7.4.1",
+              "description": "Setup quality gate API and webhooks",
+              "type": "sequential",
+              "dependencies": ["7.1.3"],
+              "status": "pending",
+              "recommendedAgentRole": "quality-agent",
+              "guidelinesRef": "Guidelines.md#Quality-Agent-Role",
+              "requirementsRef": null,
+              "definitionOfDone": [
+                "Quality gate API endpoints",
+                "Webhook integrations for notifications",
+                "Real-time quality status dashboard",
+                "Alert system for quality violations"
+              ],
+              "acceptanceCriteria": [
+                "Quality status accessible via API",
+                "Notifications sent for violations"
+              ],
+              "expectedArtifacts": [
+                "scripts/quality/quality-api.sh",
+                ".github/workflows/quality-webhook.yml"
+              ],
+              "verificationCommand": "test -f scripts/quality/quality-api.sh",
+              "onFailure": {
+                "strategy": "regenerate",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            },
+            {
+              "id": "7.4.2",
+              "description": "Create quality assurance runbook",
+              "type": "sequential",
+              "dependencies": ["7.4.1"],
+              "status": "pending",
+              "recommendedAgentRole": "quality-agent",
+              "guidelinesRef": "Guidelines.md#Quality-Agent-Workflow",
+              "requirementsRef": null,
+              "definitionOfDone": [
+                "Quality assurance procedures documented",
+                "Troubleshooting guide for quality failures",
+                "Escalation procedures for critical issues",
+                "Quality gate bypass procedures"
+              ],
+              "acceptanceCriteria": [
+                "Runbook covers all quality scenarios",
+                "Procedures are clear and actionable"
+              ],
+              "expectedArtifacts": [
+                "docs/quality-runbook.md",
+                "docs/quality-troubleshooting.md"
+              ],
+              "verificationCommand": "test -f docs/quality-runbook.md && test -f docs/quality-troubleshooting.md",
+              "onFailure": {
+                "strategy": "regenerate",
+                "recoveryCommand": null
+              },
+              "stateTracking": {
+                "startedAt": null,
+                "completedAt": null,
+                "agentAssigned": null,
+                "attemptCount": 0,
+                "lastError": null
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "orchestration": {
+    "commitConvention": "[TASK-{taskId}] {description}",
+    "workflowSteps": [
+      "1. Query tasks.json for next unblocked task (status=pending, all deps completed)",
+      "2. Update task stateTracking.startedAt and stateTracking.agentAssigned",
+      "3. Retrieve prompt from Guidelines.md using guidelinesRef",
+      "4. Validate requirements from Requirements.md using requirementsRef",
+      "5. Execute task implementation",
+      "6. Run verificationCommand to confirm success",
+      "7. Check expectedArtifacts exist",
+      "8. Verify definitionOfDone checklist complete",
+      "9. Validate acceptanceCriteria met",
+      "10. Update CHANGELOG.md with verification metadata",
+      "11. Create commit with convention",
+      "12. Update task status=completed and stateTracking.completedAt",
+      "13. If failure: increment attemptCount, log lastError, execute onFailure.recoveryCommand if defined",
+      "14. Proceed to next task"
+    ]
+  },
+  "queries": {
+    "getNextTask": "jq '.phases[].sections[].tasks[] | select(.status==\"pending\") | select(all(.dependencies[]; . as $dep | any(.. | .tasks[]?; select(.id==$dep).status==\"completed\"))) | .id' tasks.json | head -1",
+    "getTaskById": "jq '.phases[].sections[].tasks[] | select(.id==\"{taskId}\")' tasks.json",
+    "getPhaseProgress": "jq '[.phases[] | {phase: .name, completed: ([.sections[].tasks[] | select(.status==\"completed\")] | length), total: .totalTasks}]' tasks.json",
+    "getBlockedTasks": "jq '.phases[].sections[].tasks[] | select(.status==\"blocked\" or .status==\"failed\")' tasks.json",
+    "getAgentWorkload": "jq '[.phases[].sections[].tasks[] | select(.stateTracking.agentAssigned != null) | {agent: .stateTracking.agentAssigned, task: .id}] | group_by(.agent)' tasks.json"
+  }
+}
