@@ -3,9 +3,15 @@ package repository
 
 import (
 	"context"
+	"errors"
 
 	"github.com/your-org/ecommerce-platform/services/payment/internal/domain/aggregate"
 	"github.com/your-org/ecommerce-platform/services/payment/internal/domain/valueobject"
+)
+
+// Repository errors.
+var (
+	ErrPaymentNotFound = errors.New("payment not found")
 )
 
 // PaymentRepository defines the interface for payment persistence.

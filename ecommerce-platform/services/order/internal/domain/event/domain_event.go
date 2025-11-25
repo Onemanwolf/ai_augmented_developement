@@ -2,6 +2,7 @@
 package event
 
 import (
+	"encoding/json"
 	"time"
 )
 
@@ -12,6 +13,7 @@ type DomainEvent interface {
 	AggregateID() string
 	AggregateType() string
 	OccurredAt() time.Time
+	Payload() []byte
 }
 
 // BaseEvent provides common fields for domain events.
@@ -20,6 +22,7 @@ type BaseEvent struct {
 	Type         string    `json:"type"`
 	AggregateIDV string    `json:"aggregate_id"`
 	OccurredAtV  time.Time `json:"occurred_at"`
+	PayloadData  []byte    `json:"-"`
 }
 
 // EventID returns the event ID.
@@ -45,4 +48,23 @@ func (e *BaseEvent) AggregateType() string {
 // OccurredAt returns when the event occurred.
 func (e *BaseEvent) OccurredAt() time.Time {
 	return e.OccurredAtV
+}
+
+// Payload returns the event payload as bytes.
+func (e *BaseEvent) Payload() []byte {
+	if e.PayloadData != nil {
+		return e.PayloadData
+	}
+	// If no payload set, return nil (will be marshaled by outbox)
+	return nil
+}
+
+// SetPayload sets the payload from any serializable data.
+func (e *BaseEvent) SetPayload(data interface{}) error {
+	bytes, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+	e.PayloadData = bytes
+	return nil
 }

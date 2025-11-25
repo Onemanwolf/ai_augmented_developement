@@ -3,9 +3,15 @@ package repository
 
 import (
 	"context"
+	"errors"
 
 	"github.com/your-org/ecommerce-platform/services/fulfillment/internal/domain/aggregate"
 	"github.com/your-org/ecommerce-platform/services/fulfillment/internal/domain/valueobject"
+)
+
+// Repository errors.
+var (
+	ErrShipmentNotFound = errors.New("shipment not found")
 )
 
 // ShipmentRepository defines the interface for shipment persistence.

@@ -3,9 +3,15 @@ package repository
 
 import (
 	"context"
+	"errors"
 
 	"github.com/your-org/ecommerce-platform/services/order/internal/domain/aggregate"
 	"github.com/your-org/ecommerce-platform/services/order/internal/domain/valueobject"
+)
+
+// Repository errors.
+var (
+	ErrOrderNotFound = errors.New("order not found")
 )
 
 // OrderRepository defines the interface for order persistence.

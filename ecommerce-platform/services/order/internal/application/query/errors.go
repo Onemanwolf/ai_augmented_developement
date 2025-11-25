@@ -8,4 +8,5 @@ var (
 	ErrOrderIDRequired    = errors.New("order ID is required")
 	ErrCustomerIDRequired = errors.New("customer ID is required")
 	ErrStatusRequired     = errors.New("status is required")
+	ErrOrderNotFound      = errors.New("order not found")
 )

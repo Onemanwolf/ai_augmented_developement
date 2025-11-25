@@ -9,4 +9,5 @@ var (
 	ErrOrderIDRequired        = errors.New("order ID is required")
 	ErrCustomerIDRequired     = errors.New("customer ID is required")
 	ErrTrackingNumberRequired = errors.New("tracking number is required")
+	ErrShipmentNotFound       = errors.New("shipment not found")
 )

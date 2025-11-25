@@ -4,7 +4,19 @@
       "WebSearch",
       "WebFetch(domain:debezium.io)",
       "Bash(chmod:*)",
-      "Bash(./scripts/validate-docs.sh:*)"
+      "Bash(./scripts/validate-docs.sh:*)",
+      "Bash(find:*)",
+      "Bash(go mod init:*)",
+      "Bash(go get:*)",
+      "Bash(go mod tidy:*)",
+      "Bash(go build:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(go test:*)",
+      "Bash(ecommerce-platform/services/*/internal/domain/)",
+      "Bash(ecommerce-platform/services/*/go.mod)",
+      "Bash(ecommerce-platform/services/*/go.sum)"
     ],
     "deny": [],
     "ask": []
