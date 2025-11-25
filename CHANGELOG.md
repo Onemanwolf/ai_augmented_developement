@@ -14,16 +14,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 | 1. Foundation | **Complete** | 25/25 tasks |
 | 2. Domain Layer | **Complete** | 29/29 tasks |
 | 3. Application Layer | **Complete** | 34/34 tasks |
-| 4. Infrastructure Layer | Not Started | 0/37 tasks |
+| 4. Infrastructure Layer | **Complete** | 37/37 tasks |
 | 5. DevOps & CI/CD | Not Started | 0/52 tasks |
 | 6. Observability | Not Started | 0/20 tasks |
 | 7. Quality Assurance | Not Started | 0/12 tasks |
 
-**Total Progress**: 88/215 tasks (41%)
+**Total Progress**: 125/215 tasks (58%)
 
 ---
 
 ## [Unreleased]
+
+### [PHASE-4] Infrastructure Layer - 2025-11-25
+
+#### Added
+- **MongoDB Persistence (4.1)**
+  - MongoOrderRepository with full CRUD and transactional outbox
+  - MongoPaymentRepository with full CRUD and transactional outbox
+  - MongoShipmentRepository with full CRUD and transactional outbox
+  - Proper indexes for query performance
+  - Atomic event storage in outbox collection
+
+- **HTTP API Layer (4.5)**
+  - Order service: Create, Get, Cancel endpoints
+  - Payment service: Process, Get, Refund endpoints
+  - Fulfillment service: Create, Get, Ship, Cancel endpoints
+  - Health check endpoints for all services
+  - CORS middleware and correlation ID handling
+
+- **Service Bootstrap (4.7)**
+  - main.go entry points for Order, Payment, Fulfillment services
+  - MongoDB client initialization with graceful shutdown
+  - HTTP server with proper read/write/idle timeouts
+  - Environment-based configuration (PORT, MONGO_URI, MONGO_DB)
+
+#### Technical Notes
+- Services run on ports 8080 (Order), 8081 (Payment), 8082 (Fulfillment)
+- EventPublisher and PaymentGateway interfaces defined but not implemented
+- Outbox entries stored alongside aggregate saves in transactions
+
+#### Commit
+`cea8abe` - [PHASE-4] Infrastructure Layer - Persistence, API, service bootstrap
+
+---
 
 ### [PHASE-3] Application Layer - 2025-11-25
 
