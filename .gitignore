@@ -1,0 +1,82 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+bin/
+dist/
+
+# Go
+*.test
+*.out
+coverage.out
+coverage.html
+vendor/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+
+# Environment
+.env
+.env.local
+.env.*.local
+*.env
+
+# Secrets (NEVER commit)
+*.pem
+*.key
+*.crt
+credentials.json
+secrets.yaml
+secrets.yml
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+.terraform.lock.hcl
+
+# Kubernetes
+kubeconfig
+*.kubeconfig
+
+# Docker
+docker-compose.override.yml
+
+# Logs
+*.log
+logs/
+
+# Test artifacts
+testdata/
+*.test.json
+
+# Build artifacts
+node_modules/
+tmp/
+temp/
+
+# Coverage reports
+coverage/
+*.coverprofile
+
+# Generated files
+*.generated.go
+*_gen.go
+
+# Backup files
+*.bak
+*.backup
