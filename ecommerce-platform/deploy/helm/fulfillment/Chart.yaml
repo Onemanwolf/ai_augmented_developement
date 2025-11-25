@@ -1,0 +1,15 @@
+apiVersion: v2
+name: fulfillment-service
+description: A Helm chart for the Fulfillment Service
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+maintainers:
+  - name: Platform Team
+    email: platform@your-org.com
+keywords:
+  - fulfillment
+  - shipping
+  - ecommerce
+  - microservice
+dependencies: []

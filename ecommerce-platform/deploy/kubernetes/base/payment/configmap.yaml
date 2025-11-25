@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: payment-config
+  labels:
+    app: payment-service
+data:
+  mongo-database: "payments"
+  log-level: "info"
+  log-format: "json"

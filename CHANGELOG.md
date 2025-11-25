@@ -15,15 +15,64 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 | 2. Domain Layer | **Complete** | 29/29 tasks |
 | 3. Application Layer | **Complete** | 34/34 tasks |
 | 4. Infrastructure Layer | **Complete** | 37/37 tasks |
-| 5. DevOps & CI/CD | Not Started | 0/52 tasks |
+| 5. DevOps & CI/CD | **Complete** | 52/52 tasks |
 | 6. Observability | Not Started | 0/20 tasks |
 | 7. Quality Assurance | Not Started | 0/12 tasks |
 
-**Total Progress**: 125/215 tasks (58%)
+**Total Progress**: 177/215 tasks (82%)
 
 ---
 
 ## [Unreleased]
+
+### [PHASE-5] DevOps & CI/CD - 2025-11-25
+
+#### Added
+- **GitHub Actions CI/CD (5.1-5.2)**
+  - CI workflow with lint, test, build, security scan jobs
+  - CD workflow with Docker build/push and manifest updates
+  - Matrix builds for all three services
+  - Trivy security scanning and govulncheck
+  - MongoDB service container for integration tests
+
+- **Docker Configuration (5.2)**
+  - Multi-stage Dockerfiles for Order, Payment, Fulfillment services
+  - Non-root user security configuration
+  - Health checks for container orchestration
+  - Optimized image sizes with Alpine base
+
+- **Kubernetes Manifests (5.3)**
+  - Base Kustomize configurations for all services
+  - Deployments with security contexts and resource limits
+  - Services, ConfigMaps, ServiceAccounts
+  - Environment overlays (dev, staging, prod)
+  - Pod anti-affinity for high availability
+
+- **ArgoCD Configuration (5.4)**
+  - AppProject with RBAC roles (developer, admin)
+  - Application manifests for each service
+  - App-of-Apps pattern for unified deployment
+  - Automated sync with self-healing
+
+- **Helm Charts (5.5)**
+  - Complete Helm charts for Order, Payment, Fulfillment
+  - Configurable values for all environments
+  - HPA templates for autoscaling
+  - Templated deployments, services, service accounts
+
+- **Debezium CDC Configuration (5.6)**
+  - Kafka Connect deployment for CDC
+  - MongoDB outbox connectors for all services
+  - Event routing to Kafka topics
+  - Setup script for connector registration
+
+#### Technical Notes
+- Services deploy on ports 8080 (Order), 8081 (Payment), 8082 (Fulfillment)
+- GitHub Container Registry (ghcr.io) for Docker images
+- Kustomize overlays: dev (1 replica), staging (2 replicas), prod (3 replicas)
+- Debezium 2.4 with MongoDB connector for CDC
+
+---
 
 ### [PHASE-4] Infrastructure Layer - 2025-11-25
 

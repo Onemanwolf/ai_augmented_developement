@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fulfillment-config
+  labels:
+    app: fulfillment-service
+data:
+  mongo-database: "fulfillment"
+  log-level: "info"
+  log-format: "json"

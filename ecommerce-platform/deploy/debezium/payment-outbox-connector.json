@@ -1,0 +1,33 @@
+{
+  "name": "payment-outbox-connector",
+  "config": {
+    "connector.class": "io.debezium.connector.mongodb.MongoDbConnector",
+    "tasks.max": "1",
+    "mongodb.connection.string": "${MONGO_URI}",
+    "mongodb.name": "payment-db",
+    "database.include.list": "payments",
+    "collection.include.list": "payments.outbox",
+    "topic.prefix": "payment",
+    "transforms": "outbox",
+    "transforms.outbox.type": "io.debezium.connector.mongodb.transforms.outbox.MongoEventRouter",
+    "transforms.outbox.collection.field.event.id": "event_id",
+    "transforms.outbox.collection.field.event.key": "aggregate_id",
+    "transforms.outbox.collection.field.event.type": "event_type",
+    "transforms.outbox.collection.field.event.payload": "payload",
+    "transforms.outbox.collection.field.event.timestamp": "created_at",
+    "transforms.outbox.route.by.field": "aggregate_type",
+    "transforms.outbox.route.topic.replacement": "payment-events",
+    "transforms.outbox.table.expand.json.payload": "true",
+    "tombstones.on.delete": "false",
+    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "key.converter.schemas.enable": "false",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter.schemas.enable": "false",
+    "snapshot.mode": "initial",
+    "signal.data.collection": "payments.debezium_signal",
+    "mongodb.ssl.enabled": "false",
+    "errors.tolerance": "all",
+    "errors.log.enable": "true",
+    "errors.log.include.messages": "true"
+  }
+}
