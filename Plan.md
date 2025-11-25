@@ -5,7 +5,7 @@
 | Document | Purpose | Key Sections |
 |----------|---------|--------------|
 | **Requirements.md** | What to build | Business flows, tech stack, acceptance criteria |
-| **Task.md** | Detailed tasks | 197 tasks with dependencies, sequential/concurrent |
+| **Task.md** | Detailed tasks | 209 tasks with dependencies, sequential/concurrent |
 | **Guidelines.md** | How to code | Layer standards, copy-paste agent prompts |
 | **CHANGELOG.md** | Track progress | Task completion log, verification metadata |
 | **Setup.md** | Environment config | Prerequisites, Docker Compose, agent bootstrap |
@@ -15,7 +15,7 @@
 
 ## Executive Summary
 
-This plan outlines the phased approach to build a scalable e-commerce microservices platform using Go, Kafka, MongoDB, and GitOps practices. The project is divided into 6 phases, with each phase building upon the previous.
+This plan outlines the phased approach to build a scalable e-commerce microservices platform using Go, Kafka, MongoDB, and GitOps practices. The project is divided into 7 phases, with each phase building upon the previous.
 
 ---
 
@@ -29,6 +29,7 @@ This plan outlines the phased approach to build a scalable e-commerce microservi
 | 4 | Infrastructure Layer | MongoDB, Kafka, Debezium integration | Phase 2 |
 | 5 | DevOps & CI/CD | Containers, pipelines, GitOps setup | Phase 3, 4 |
 | 6 | Observability | Monitoring, dashboards, alerting | Phase 5 |
+| 7 | Quality Assurance | Quality gates, security scanning, performance validation | Phase 6 |
 
 ---
 
@@ -671,6 +672,10 @@ Phase 3        Phase 4            │
            ▼
        Phase 6
     (Observability)
+           │
+           ▼
+       Phase 7
+  (Quality Assurance)
 ```
 
 ---
@@ -684,7 +689,8 @@ Phase 3        Phase 4            │
 | 3 | Application layer complete | SAGA working, all handlers implemented |
 | 4 | Infrastructure layer complete | Services can persist and communicate |
 | 5 | CI/CD pipeline complete | Automated build, test, deploy working |
-| 6 | Production ready | Monitoring, alerting, dashboards live |
+| 6 | Observability complete | Monitoring, alerting, dashboards live |
+| 7 | Production ready | Quality gates passing, security validated |
 
 ---
 

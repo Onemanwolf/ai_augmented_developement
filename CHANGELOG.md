@@ -346,7 +346,7 @@ which will be converted to markdown:
 ## Version History
 
 | Version | Date | Milestone |
-|---------|------|-----------||
+|---------|------|-----------|
 | 0.0.0 | 2025-11-24 | Project planning complete |
 | 0.1.0 | TBD | Phase 1 Foundation complete |
 | 0.2.0 | TBD | Phase 2 Domain Layer complete |

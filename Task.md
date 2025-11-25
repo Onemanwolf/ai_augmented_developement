@@ -5,7 +5,7 @@
 | Document | Purpose | Key Sections |
 |----------|---------|--------------|
 | **Requirements.md** | What to build | Business flows, tech stack, acceptance criteria |
-| **Plan.md** | How to build | Phase overview, architecture, deliverables |
+| **Plan.md** | How to build | Phase 1-7 overview, architecture, deliverables |
 | **Guidelines.md** | Coding standards | Layer guidelines, agent prompts (copy-paste ready) |
 | **CHANGELOG.md** | Track progress | Update after each task completion |
 | **Setup.md** | Environment setup | Prerequisites, Docker Compose, agent bootstrap |
@@ -476,6 +476,45 @@ cat tasks.json | jq '.phases[].sections[].tasks[] | select(.id=="X.X.X") | .defi
 
 ---
 
+## Phase 7: Quality Assurance
+
+> **Prerequisite**: Phase 6 complete
+> **REF**: Guidelines.md Quality Agent Role
+
+### 7.1 Quality Gates Setup `[S]`
+
+| ID | Task | Type | Dependencies | Assignable |
+|----|------|------|--------------|------------|
+| 7.1.1 | Create quality gate scripts | `[S]` | 6.5.5 | Yes |
+| 7.1.2 | Configure GitHub Actions quality workflows | `[S]` | 7.1.1 | Yes |
+| 7.1.3 | Setup quality dashboard and reporting | `[S]` | 7.1.2 | Yes |
+
+### 7.2 Security Quality Gates `[C]`
+
+| ID | Task | Type | Dependencies | Assignable |
+|----|------|------|--------------|------------|
+| 7.2.1 | Implement automated security scanning | `[C]` | 7.1.3 | Yes |
+| 7.2.2 | Configure compliance checks | `[C]` | 7.1.3 | Yes |
+| 7.2.3 | Setup vulnerability tracking | `[S]` | 7.2.1, 7.2.2 | Yes |
+
+### 7.3 Performance Quality Gates `[C]`
+
+| ID | Task | Type | Dependencies | Assignable |
+|----|------|------|--------------|------------|
+| 7.3.1 | Setup automated performance testing | `[C]` | 7.1.3 | Yes |
+| 7.3.2 | Implement code quality metrics collection | `[C]` | 7.1.3 | Yes |
+| 7.3.3 | Configure performance regression detection | `[S]` | 7.3.1, 7.3.2 | Yes |
+
+### 7.4 Continuous Quality Monitoring `[S]`
+
+| ID | Task | Type | Dependencies | Assignable |
+|----|------|------|--------------|------------|
+| 7.4.1 | Setup quality gate API and webhooks | `[S]` | 7.2.3, 7.3.3 | Yes |
+| 7.4.2 | Create quality assurance runbook | `[S]` | 7.4.1 | Yes |
+| 7.4.3 | Final quality validation and sign-off | `[S]` | 7.4.2 | Yes |
+
+---
+
 ## Concurrent Work Streams
 
 After Phase 1 baseline is complete, the following can run in parallel:
@@ -539,12 +578,13 @@ After Phase 1 baseline is complete, the following can run in parallel:
 | Phase | Total Tasks | Sequential | Concurrent |
 |-------|-------------|------------|------------|
 | 1 | 25 | 14 | 11 |
-| 2 | 30 | 12 | 18 |
+| 2 | 29 | 11 | 18 |
 | 3 | 34 | 18 | 16 |
 | 4 | 37 | 24 | 13 |
 | 5 | 52 | 35 | 17 |
-| 6 | 25 | 14 | 11 |
-| **Total** | **215** | **129** | **86** |
+| 6 | 20 | 10 | 10 |
+| 7 | 12 | 8 | 4 |
+| **Total** | **209** | **120** | **89** |
 
 ---
 

@@ -1,19 +1,19 @@
 build and deploy a scalable ecommerce-inspired microservice app, fully automated from code commit to production deployment.
-using Kafka and Mongo db written in go lang. With Order, payment, and Fullfillment services use clean code and clean architecture and Domain Driven design use the outbox pattern for Intergration Events that are triggered by Domain events Orders domain should be manager of the SAGA and should the order state should be updated after payement recieved events and ordershipped events Each microservice should subscribe to the events that need to process the order and to orders should subscribe to the evets that update the state if any event is a failure the state should be updated and compensation operations should be implemented. Use Change Date Capture Debeiun for the outboxk pattern after the data for the microservice is saved in the events table that is data is saved. 
+using Kafka and Mongo db written in go lang. With Order, payment, and Fulfillment services use clean code and clean architecture and Domain Driven design use the outbox pattern for Integration Events that are triggered by Domain events Orders domain should be manager of the SAGA and should the order state should be updated after payment received events and ordershipped events Each microservice should subscribe to the events that need to process the order and to orders should subscribe to the events that update the state if any event is a failure the state should be updated and compensation operations should be implemented. Use Change Data Capture Debezium for the outbox pattern after the data for the microservice is saved in the events table that is data is saved. 
 
-Create a plan firts
-Then break the work up into smaller chuncks by layer and sub task for layer internals 
-Then provide Guidelines for developer agents wih prompts 
+Create a plan first
+Then break the work up into smaller chunks by layer and sub task for layer internals 
+Then provide Guidelines for developer agents with prompts 
 
-Create a Requierments.md, Plan.md, Task.md, and Guidelines.md 
+Create a Requirements.md, Plan.md, Task.md, and Guidelines.md 
 
-Once all the requried markdowns are created and the plan is reviewed we will build the solution 
+Once all the required markdowns are created and the plan is reviewed we will build the solution 
 
 Use the below to help with the Requirements.md 
 
-Coding Standards will and Acceptance criteria will be need for each layer and Task and subtask and be part of the guidlines an human developer will cut and paste the prompts in the guidelines files and be responsible for making sure the task are completed 
+Coding Standards will and Acceptance criteria will be needed for each layer and Task and subtask and be part of the guidelines a human developer will cut and paste the prompts in the guidelines files and be responsible for making sure the task are completed 
 
-Use squence task and then concurrent where possible to allow for asyncronous development ater the baseline depenedency are in place allow for concurrent work with sub task so multiple agents and work at the same time on smaller task 
+Use sequence task and then concurrent where possible to allow for asynchronous development after the baseline dependencies are in place allow for concurrent work with sub task so multiple agents and work at the same time on smaller task 
 
 🔧 Tools & Technologies:
 Azure AKS Kubernetes → for container orchestration

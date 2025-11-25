@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "WebSearch",
-      "WebFetch(domain:debezium.io)"
+      "WebFetch(domain:debezium.io)",
+      "Bash(chmod:*)",
+      "Bash(./scripts/validate-docs.sh:*)"
     ],
     "deny": [],
     "ask": []

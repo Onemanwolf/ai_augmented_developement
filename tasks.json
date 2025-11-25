@@ -4,7 +4,7 @@
     "project": "E-Commerce Microservices Platform",
     "version": "2.0.0",
     "totalTasks": 209,
-    "lastUpdated": "2024-XX-XX",
+    "lastUpdated": "2025-11-25",
     "documents": {
       "spec": "GitOps.md",
       "requirements": "Requirements.md",
@@ -1008,7 +1008,7 @@
       "name": "Domain Layer",
       "description": "Domain models, events, aggregates for all services following DDD",
       "prerequisite": "phase-1",
-      "totalTasks": 30,
+      "totalTasks": 29,
       "status": "pending",
       "sections": [
         {
@@ -3292,7 +3292,7 @@
       "name": "Observability",
       "description": "Monitoring, dashboards, alerting",
       "prerequisite": "phase-5",
-      "totalTasks": 25,
+      "totalTasks": 20,
       "status": "pending",
       "summaryNote": "Detailed tasks available in Task.md. Key sections: 6.1 (Prometheus), 6.2 (Grafana), 6.3 (Alerting), 6.4 (Logging), 6.5 (Distributed Tracing)"
     },
