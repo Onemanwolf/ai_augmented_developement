@@ -1,0 +1,197 @@
+groups:
+  - name: ecommerce-service-alerts
+    rules:
+      # High error rate alert
+      - alert: HighErrorRate
+        expr: |
+          (
+            sum(rate(http_requests_total{status=~"5.."}[5m])) by (service, namespace)
+            /
+            sum(rate(http_requests_total[5m])) by (service, namespace)
+          ) > 0.01
+        for: 5m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "High error rate on {{ $labels.service }}"
+          description: "Service {{ $labels.service }} in {{ $labels.namespace }} has error rate of {{ $value | humanizePercentage }}"
+          runbook_url: "https://wiki.example.com/runbooks/high-error-rate"
+
+      # High latency alert
+      - alert: HighLatency
+        expr: |
+          histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le, service, namespace))
+          > 1
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "High latency on {{ $labels.service }}"
+          description: "Service {{ $labels.service }} p95 latency is {{ $value | humanizeDuration }}"
+
+      # Service down alert
+      - alert: ServiceDown
+        expr: up{job=~"order-service|payment-service|fulfillment-service"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "Service {{ $labels.job }} is down"
+          description: "{{ $labels.job }} has been down for more than 1 minute"
+          runbook_url: "https://wiki.example.com/runbooks/service-down"
+
+      # Pod restart alert
+      - alert: PodRestarting
+        expr: |
+          increase(kube_pod_container_status_restarts_total{namespace=~"ecommerce.*"}[1h]) > 3
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Pod {{ $labels.pod }} restarting frequently"
+          description: "Pod {{ $labels.pod }} has restarted {{ $value }} times in the last hour"
+
+  - name: ecommerce-business-alerts
+    rules:
+      # Order processing failures
+      - alert: OrderProcessingFailures
+        expr: |
+          sum(rate(orders_failed_total[5m])) by (namespace) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+          team: business
+        annotations:
+          summary: "High order failure rate"
+          description: "Order failures are occurring at {{ $value }} per second"
+
+      # Payment failures
+      - alert: PaymentFailures
+        expr: |
+          (
+            sum(rate(payments_failed_total[5m])) by (namespace)
+            /
+            sum(rate(payments_total[5m])) by (namespace)
+          ) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+          team: business
+        annotations:
+          summary: "High payment failure rate"
+          description: "Payment failure rate is {{ $value | humanizePercentage }}"
+
+      # Shipment delays
+      - alert: ShipmentDelays
+        expr: |
+          sum(shipments_pending{status="pending"}) by (namespace) > 100
+        for: 30m
+        labels:
+          severity: warning
+          team: operations
+        annotations:
+          summary: "High number of pending shipments"
+          description: "{{ $value }} shipments pending for more than 30 minutes"
+
+  - name: kafka-alerts
+    rules:
+      # Kafka consumer lag
+      - alert: KafkaConsumerLag
+        expr: kafka_consumer_group_lag > 1000
+        for: 10m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Kafka consumer lag detected"
+          description: "Consumer group {{ $labels.consumergroup }} has lag of {{ $value }} on topic {{ $labels.topic }}"
+
+      # Kafka broker down
+      - alert: KafkaBrokerDown
+        expr: kafka_brokers < 3
+        for: 5m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "Kafka broker count below threshold"
+          description: "Only {{ $value }} Kafka brokers are available"
+
+  - name: mongodb-alerts
+    rules:
+      # MongoDB connection issues
+      - alert: MongoDBConnectionIssues
+        expr: |
+          mongodb_connections{state="current"} / mongodb_connections{state="available"} > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "MongoDB connection pool near capacity"
+          description: "MongoDB connection usage is at {{ $value | humanizePercentage }}"
+
+      # MongoDB replication lag
+      - alert: MongoDBReplicationLag
+        expr: mongodb_replset_member_replication_lag > 10
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "MongoDB replication lag detected"
+          description: "Replication lag is {{ $value }} seconds"
+
+  - name: infrastructure-alerts
+    rules:
+      # High CPU usage
+      - alert: HighCPUUsage
+        expr: |
+          (
+            sum(rate(container_cpu_usage_seconds_total{namespace=~"ecommerce.*"}[5m])) by (pod, namespace)
+            /
+            sum(kube_pod_container_resource_limits{resource="cpu", namespace=~"ecommerce.*"}) by (pod, namespace)
+          ) > 0.8
+        for: 10m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "High CPU usage on {{ $labels.pod }}"
+          description: "Pod {{ $labels.pod }} CPU usage is {{ $value | humanizePercentage }}"
+
+      # High memory usage
+      - alert: HighMemoryUsage
+        expr: |
+          (
+            sum(container_memory_usage_bytes{namespace=~"ecommerce.*"}) by (pod, namespace)
+            /
+            sum(kube_pod_container_resource_limits{resource="memory", namespace=~"ecommerce.*"}) by (pod, namespace)
+          ) > 0.8
+        for: 10m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "High memory usage on {{ $labels.pod }}"
+          description: "Pod {{ $labels.pod }} memory usage is {{ $value | humanizePercentage }}"
+
+      # Persistent volume almost full
+      - alert: PersistentVolumeAlmostFull
+        expr: |
+          (
+            kubelet_volume_stats_used_bytes{namespace=~"ecommerce.*"}
+            /
+            kubelet_volume_stats_capacity_bytes{namespace=~"ecommerce.*"}
+          ) > 0.85
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Persistent volume {{ $labels.persistentvolumeclaim }} almost full"
+          description: "PVC {{ $labels.persistentvolumeclaim }} is {{ $value | humanizePercentage }} full"

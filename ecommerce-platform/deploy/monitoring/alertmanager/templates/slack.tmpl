@@ -1,0 +1,18 @@
+{{ define "slack.default.title" }}
+{{ if eq .Status "firing" }}:fire:{{ else }}:white_check_mark:{{ end }} [{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .GroupLabels.alertname }}
+{{ end }}
+
+{{ define "slack.default.text" }}
+{{ range .Alerts }}
+*Alert:* {{ .Annotations.summary }}
+*Description:* {{ .Annotations.description }}
+*Severity:* {{ .Labels.severity }}
+*Service:* {{ .Labels.service }}
+*Namespace:* {{ .Labels.namespace }}
+{{ if .Annotations.runbook_url }}*Runbook:* {{ .Annotations.runbook_url }}{{ end }}
+{{ end }}
+{{ end }}
+
+{{ define "slack.default.footer" }}
+Sent by AlertManager | {{ .ExternalURL }}
+{{ end }}
