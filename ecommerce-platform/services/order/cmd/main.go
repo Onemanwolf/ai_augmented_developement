@@ -8,20 +8,26 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
-	"github.com/your-org/ecommerce-platform/services/order/internal/application/handler"
 	httpapi "github.com/your-org/ecommerce-platform/services/order/internal/api/http"
+	"github.com/your-org/ecommerce-platform/services/order/internal/application/handler"
+	"github.com/your-org/ecommerce-platform/services/order/internal/application/saga"
 	"github.com/your-org/ecommerce-platform/services/order/internal/infrastructure/persistence"
+	"github.com/your-org/ecommerce-platform/shared/pkg/kafka"
 	"github.com/your-org/ecommerce-platform/shared/pkg/mongodb"
+	sagapkg "github.com/your-org/ecommerce-platform/shared/pkg/saga"
 )
 
 // Config holds the service configuration.
 type Config struct {
-	Port        string
-	MongoURI    string
-	MongoDBName string
+	Port         string
+	MongoURI     string
+	MongoDBName  string
+	KafkaBrokers []string
+	KafkaTopic   string
 }
 
 func main() {
@@ -47,17 +53,53 @@ func main() {
 	}
 	defer mongoClient.Close(ctx)
 
+	// Initialize Kafka event publisher
+	eventPublisher := kafka.NewEventPublisher(kafka.EventPublisherConfig{
+		Brokers: cfg.KafkaBrokers,
+		Topic:   cfg.KafkaTopic,
+	})
+	defer eventPublisher.Close()
+	log.Printf("Kafka event publisher initialized for topic: %s", cfg.KafkaTopic)
+
 	// Initialize repositories
 	orderRepo := persistence.NewMongoOrderRepository(mongoClient)
+
+	// Initialize SAGA event handler
+	sagaHandler := saga.NewEventHandler(orderRepo, eventPublisher)
+
+	// Initialize Kafka consumer for payment-events and fulfillment-events
+	consumerConfig := kafka.DefaultConsumerConfig()
+	consumerConfig.Brokers = cfg.KafkaBrokers
+	consumerConfig.GroupID = "order-service"
+	consumerConfig.Topics = []string{sagapkg.TopicPaymentEvents, sagapkg.TopicFulfillmentEvents}
+	consumer := kafka.NewConsumer(consumerConfig)
+	defer consumer.Close()
+
+	// Register event handlers
+	consumer.RegisterHandler(sagapkg.EventPaymentProcessed, sagaHandler.HandlePaymentProcessed)
+	consumer.RegisterHandler(sagapkg.EventPaymentFailed, sagaHandler.HandlePaymentFailed)
+	consumer.RegisterHandler(sagapkg.EventPaymentRefunded, sagaHandler.HandlePaymentRefunded)
+	consumer.RegisterHandler(sagapkg.EventShipmentCreated, sagaHandler.HandleShipmentCreated)
+	consumer.RegisterHandler(sagapkg.EventShipmentFailed, sagaHandler.HandleShipmentFailed)
+	consumer.RegisterHandler(sagapkg.EventShipmentShipped, sagaHandler.HandleShipmentShipped)
+	consumer.RegisterHandler(sagapkg.EventShipmentDelivered, sagaHandler.HandleShipmentDelivered)
+	log.Printf("Kafka consumer initialized for topics: %v", consumerConfig.Topics)
+
+	// Start consumer in background
+	go func() {
+		log.Println("Starting Order SAGA event consumer...")
+		if err := consumer.Start(ctx); err != nil && err != context.Canceled {
+			log.Printf("Consumer error: %v", err)
+		}
+	}()
 
 	// Ensure indexes
 	if err := orderRepo.EnsureIndexes(ctx); err != nil {
 		log.Printf("Warning: Failed to ensure indexes: %v", err)
 	}
 
-	// Initialize handlers
-	// Note: EventPublisher is nil for now - would be injected in full implementation
-	cmdHandler := handler.NewOrderCommandHandler(orderRepo, nil)
+	// Initialize handlers with event publisher
+	cmdHandler := handler.NewOrderCommandHandler(orderRepo, eventPublisher)
 	qryHandler := handler.NewOrderQueryHandler(orderRepo)
 
 	// Initialize HTTP handlers
@@ -103,10 +145,13 @@ func main() {
 }
 
 func loadConfig() Config {
+	brokers := getEnv("KAFKA_BROKERS", "localhost:9092")
 	return Config{
-		Port:        getEnv("PORT", "8080"),
-		MongoURI:    getEnv("MONGO_URI", "mongodb://localhost:27017"),
-		MongoDBName: getEnv("MONGO_DB", "orders"),
+		Port:         getEnv("PORT", "8080"),
+		MongoURI:     getEnv("MONGO_URI", "mongodb://localhost:27017"),
+		MongoDBName:  getEnv("MONGO_DB", "orders"),
+		KafkaBrokers: strings.Split(brokers, ","),
+		KafkaTopic:   getEnv("KAFKA_TOPIC", "order-events"),
 	}
 }
 

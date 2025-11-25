@@ -63,20 +63,22 @@ func (h *OrderCommandHandler) HandleCreateOrder(ctx context.Context, cmd *comman
 		return nil, fmt.Errorf("failed to create order: %w", err)
 	}
 
-	// Save the order
+	// Capture events BEFORE saving (Save clears events for outbox pattern)
+	events := order.Events()
+
+	// Save the order (this will also save events to outbox and clear them)
 	if err := h.repo.Save(ctx, order); err != nil {
 		return nil, fmt.Errorf("failed to save order: %w", err)
 	}
 
-	// Publish domain events
-	events := order.Events()
-	if len(events) > 0 {
+	// Publish domain events to Kafka for real-time consumers
+	if len(events) > 0 && h.eventPublisher != nil {
 		eventInterfaces := make([]interface{}, len(events))
 		for i, e := range events {
 			eventInterfaces[i] = e
 		}
 		if err := h.eventPublisher.Publish(ctx, eventInterfaces); err != nil {
-			// Log but don't fail - events will be picked up by outbox
+			// Log but don't fail - events are also saved to outbox as backup
 			fmt.Printf("failed to publish events: %v\n", err)
 		}
 	}
@@ -104,13 +106,15 @@ func (h *OrderCommandHandler) HandleCancelOrder(ctx context.Context, cmd *comman
 		return fmt.Errorf("failed to cancel order: %w", err)
 	}
 
+	// Capture events BEFORE saving
+	events := order.Events()
+
 	if err := h.repo.Save(ctx, order); err != nil {
 		return fmt.Errorf("failed to save order: %w", err)
 	}
 
-	// Publish domain events
-	events := order.Events()
-	if len(events) > 0 {
+	// Publish domain events to Kafka
+	if len(events) > 0 && h.eventPublisher != nil {
 		eventInterfaces := make([]interface{}, len(events))
 		for i, e := range events {
 			eventInterfaces[i] = e
@@ -161,13 +165,15 @@ func (h *OrderCommandHandler) HandleUpdateOrderStatus(ctx context.Context, cmd *
 		return fmt.Errorf("unsupported status transition to %s", cmd.NewStatus)
 	}
 
+	// Capture events BEFORE saving
+	events := order.Events()
+
 	if err := h.repo.Save(ctx, order); err != nil {
 		return fmt.Errorf("failed to save order: %w", err)
 	}
 
-	// Publish domain events
-	events := order.Events()
-	if len(events) > 0 {
+	// Publish domain events to Kafka
+	if len(events) > 0 && h.eventPublisher != nil {
 		eventInterfaces := make([]interface{}, len(events))
 		for i, e := range events {
 			eventInterfaces[i] = e

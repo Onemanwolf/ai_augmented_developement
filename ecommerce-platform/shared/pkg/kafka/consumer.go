@@ -117,8 +117,11 @@ func (c *Consumer) Start(ctx context.Context) error {
 				consumed.Headers[h.Key] = string(h.Value)
 			}
 
-			// Get event type from headers
-			eventType := consumed.Headers["event_type"]
+			// Get event type from headers (check both formats)
+			eventType := consumed.Headers["event-type"]
+			if eventType == "" {
+				eventType = consumed.Headers["event_type"]
+			}
 			if handler, ok := c.handlers[eventType]; ok {
 				if err := handler(ctx, consumed); err != nil {
 					// Log error but continue processing
